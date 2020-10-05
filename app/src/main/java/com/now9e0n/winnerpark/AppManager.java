@@ -1,7 +1,10 @@
 package com.now9e0n.winnerpark;
 
 import android.app.Application;
+import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +20,6 @@ public class AppManager extends Application {
 
     @Getter @Setter
     private UserModel user;
-
     private String userFilePath;
 
     @Override
@@ -25,7 +27,6 @@ public class AppManager extends Application {
         super.onCreate();
 
         userFilePath = getFilesDir() + "/user";
-
         readUser();
     }
 
@@ -44,7 +45,7 @@ public class AppManager extends Application {
     }
 
     public void saveUser() {
-        ObjectOutputStream outStream = null;
+        ObjectOutputStream outStream;
         try {
             outStream = new ObjectOutputStream(new FileOutputStream(userFilePath));
             outStream.writeObject(user);
@@ -52,5 +53,11 @@ public class AppManager extends Application {
         } catch (IOException e) {
             Log.e("File", "Write Failed", e);
         }
+    }
+
+    public static float getDensityRatio(Context context) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
+        return (float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
     }
 }
