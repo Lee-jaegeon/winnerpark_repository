@@ -22,11 +22,14 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        ButterKnife.bind(this);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        ButterKnife.bind(this);
+        init();
+    }
 
-        animationView.setAnimation("logo_animation.json");
+    private void init() {
+        animationView.setAnimation("animation_splash.json");
         animationView.addAnimatorListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -35,25 +38,7 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                boolean isUserEmpty = ((AppManager) getApplication()).getUser() == null;
-
-                if (isUserEmpty) {
-                    Intent intent = new Intent(getApplicationContext(), IntroActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    startActivity(intent);
-
-                    finish();
-                }
-
-                else {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(intent);
-
-                    finish();
-                }
+                startIntroActivity();
             }
 
             @Override
@@ -67,6 +52,28 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
         animationView.playAnimation();
+    }
+
+    private void startIntroActivity() {
+        boolean isUserEmpty = ((AppManager) getApplication()).getUser() == null;
+
+        if (isUserEmpty) {
+            Intent intent = new Intent(getApplicationContext(), IntroActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+
+            finish();
+        }
+
+        else {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+
+            finish();
+        }
     }
 
     @Override

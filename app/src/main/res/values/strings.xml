@@ -4,31 +4,31 @@
     <string name="facebook_app_id">344668486535900</string>
     <string name="fb_login_protocol_scheme">fb344668486535900</string>
 
-    <string name="game_name_1">League of Legends</string>
-    <string name="game_name_2">Among Us</string>
-    <string name="game_name_3">PLAYERUNKNOWN\'S BATTLEGROUNDS</string>
-    <string name="game_name_4">Teamfight Tactics</string>
-    <string name="game_name_5">Minecraft</string>
-    <string name="game_name_6">Dead by Daylight</string>
-    <string name="game_name_7">HearthStone</string>
-    <string name="game_name_8">Fortnite</string>
-    <string name="game_name_9">Call Of Duty: Modern Warfare</string>
-    <string name="game_name_10">Lost Ark Online</string>
-    <string name="game_name_11">Counter-Strike: Global Offensive</string>
-    <string name="game_name_12">World of Warcraft</string>
-    <string name="game_name_13">Fall Guys: Ultimate Knockout</string>
-    <string name="game_name_14">Maple Story</string>
-    <string name="game_name_15">VALORANT</string>
-    <string name="game_name_16">Overwatch</string>
-    <string name="game_name_17">Apex Legends</string>
-    <string name="game_name_18">Grand Theft Auto Ⅴ</string>
-    <string name="game_name_19">Kartrider</string>
-    <string name="game_name_20">Brawl Stars</string>
-    <string name="game_name_21">StarCraft</string>
-    <string name="game_name_22">Legends of Runeterra</string>
+    <string-array name="game_name">
+        <item>League of Legends</item>
+        <item>Among Us</item>
+        <item>PLAYERUNKNOWN\'S BATTLEGROUNDS</item>
+        <item>Teamfight Tactics</item>
+        <item>Minecraft</item>
+        <item>Dead by Daylight</item>
+        <item>HearthStone</item>
+        <item>Fortnite</item>
+        <item>Call Of Duty: Modern Warfare</item>
+        <item>Lost Ark Online</item>
+        <item>Counter-Strike: Global Offensive</item>
+        <item>World of Warcraft</item>
+        <item>Fall Guys: Ultimate Knockout</item>
+        <item>Maple Story</item>
+        <item>VALORANT</item>
+        <item>Overwatch</item>
+        <item>Apex Legends</item>
+        <item>Grand Theft Auto Ⅴ</item>
+        <item>Kartrider</item>
+        <item>Brawl Stars</item>
+        <item>StarCraft</item>
+        <item>Legends of Runeterra</item>
+    </string-array>
 
     <string name="open_drawer">Navigation Drawer Open</string>
     <string name="close_drawer">Navigation Drawer Close</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

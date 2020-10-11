@@ -1,6 +1,7 @@
 package com.now9e0n.winnerpark;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,9 +10,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.core.content.res.ResourcesCompat;
 
-import static com.now9e0n.winnerpark.AppManager.getDensityRatio;
+import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
 
 public class CustomEditText extends AppCompatEditText implements TextWatcher, View.OnTouchListener, View.OnFocusChangeListener {
     private Drawable clearDrawable;
@@ -19,23 +19,24 @@ public class CustomEditText extends AppCompatEditText implements TextWatcher, Vi
 
     public CustomEditText(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public CustomEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public CustomEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        clearDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.clear_button, context.getTheme());
-        length = (int) (25 * getDensityRatio(context));
+    private void init() {
+        clearDrawable = getMyDrawable(R.drawable.btn_clear);
+        length = (int) (18 * AppManager.getDensityRatio());
         clearDrawable.setBounds(0, 0, length, length);
+        clearDrawable.setTint(Color.BLACK);
         setClearIconVisible(false);
 
         setOnFocusChangeListener(this);

@@ -14,7 +14,6 @@ public class UserModel implements Serializable {
     private String name;
     private String phoneNumber;
     private String email;
-    private String id;
     private String password;
     private String createdDate;
     private String gameKind;
@@ -23,7 +22,6 @@ public class UserModel implements Serializable {
         String name = map.get("name");
         String phoneNumber = map.get("phoneNumber");
         String email = map.get("email");
-        String id = map.get("id");
         String password = map.get("password");
         String createdDate = map.get("createdDate");
         String gameKind = map.get("gameKind");
@@ -32,7 +30,6 @@ public class UserModel implements Serializable {
                 .name(name)
                 .phoneNumber(phoneNumber)
                 .email(email)
-                .id(id)
                 .password(password)
                 .createdDate(createdDate)
                 .gameKind(gameKind)

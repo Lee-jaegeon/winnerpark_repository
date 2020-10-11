@@ -25,7 +25,7 @@ public class SendSMSClient {
         params.put("type", "SMS");
     }
 
-    public void sendSMS(String toPhoneNumber) {
+    public void sendSMS(String toPhoneNumber, Runnable runnable) {
         params.put("to", toPhoneNumber);
 
         code = createCode();
@@ -37,6 +37,7 @@ public class SendSMSClient {
             @Override
             public void run() {
                 coolSMS.send(params);
+                runnable.run();
             }
         }.start();
     }

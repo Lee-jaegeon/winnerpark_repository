@@ -1,10 +1,13 @@
 package com.now9e0n.winnerpark;
 
 import android.app.Application;
-import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,12 +25,23 @@ public class AppManager extends Application {
     private UserModel user;
     private String userFilePath;
 
+    private static Resources resources;
+    private static Resources.Theme theme;
+    @Getter static float densityRatio;
+
     @Override
     public void onCreate() {
         super.onCreate();
 
         userFilePath = getFilesDir() + "/user";
         readUser();
+
+        resources = getResources();
+        theme = getTheme();
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        ((WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
+        densityRatio = (float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
     }
 
     private void readUser() {
@@ -55,9 +69,11 @@ public class AppManager extends Application {
         }
     }
 
-    public static float getDensityRatio(Context context) {
-        DisplayMetrics metrics = new DisplayMetrics();
-        ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
-        return (float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+    public static Drawable getMyDrawable(int drawable) {
+        return ResourcesCompat.getDrawable(resources, drawable, theme);
+    }
+
+    public static int getMyColor(int color) {
+        return ResourcesCompat.getColor(resources, color, theme);
     }
 }

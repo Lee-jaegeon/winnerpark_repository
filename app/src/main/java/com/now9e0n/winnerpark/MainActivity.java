@@ -18,7 +18,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +27,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,17 +49,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        app = (AppManager) getApplication();
         ButterKnife.bind(this);
+        app = (AppManager) getApplication();
 
+        init();
+        gameExistCheck();
+        recyclerViewInit();
+    }
+
+    private void init() {
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.menu);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
-        drawerLayout.addDrawerListener(toggle);
+        drawerLayout.addDrawerListener(new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer));
 
         tabHost.setup();
 
@@ -82,15 +88,21 @@ public class MainActivity extends AppCompatActivity {
         profileImage.setImageResource(R.drawable.profile);
         profileTabSpec.setIndicator(profileImage);
         tabHost.addTab(profileTabSpec);
+    }
 
-        gameExistCheck();
+    private void gameExistCheck() {
+        if (TextUtils.isEmpty(app.getUser().getGameKind())) {
 
+        }
+    }
+
+    private void recyclerViewInit() {
         String[] gameKindArray = app.getUser().getGameKind().split(" ");
         ArrayList<Drawable> drawableList = new ArrayList<>();
 
         for (String gameKind : gameKindArray) {
-            int id = getResources().getIdentifier(gameKind + "_icon", "drawable", getPackageName());
-            drawableList.add(ResourcesCompat.getDrawable(getResources(), id, getTheme()));
+            int drawable = getResources().getIdentifier(gameKind + "_icon", "drawable", getPackageName());
+            drawableList.add(getMyDrawable(drawable));
         }
 
         recyclerView.setAdapter(new KindRecyclerAdapter(drawableList));
@@ -123,15 +135,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void gameExistCheck() {
-        if (TextUtils.isEmpty(app.getUser().getGameKind())) {
-
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_toolbar_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_toolbar_main, menu);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -165,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
-            @BindView(R.id.image_view_item)
+            @BindView(R.id.item_imv)
             ImageView imageView;
 
             public ViewHolder(View itemView) {
@@ -178,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         @NonNull
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_recycler_item, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recycler_main, parent, false);
 
             return new ViewHolder(view);
         }

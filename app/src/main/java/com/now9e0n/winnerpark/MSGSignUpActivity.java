@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
@@ -13,12 +16,12 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -33,20 +36,25 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MSGLoginActivity extends AppCompatActivity {
+import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
+
+public class MSGSignUpActivity extends AppCompatActivity {
 
     private static final int REQUEST_PHONE_HINT = 101;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    @BindView(R.id.phone_number_edit)
-    EditText phoneNumberEdit;
-    @BindView(R.id.email_edit)
-    EditText emailEdit;
+    @BindView(R.id.phone_number_et)
+    EditText phoneNumberEt;
+    @BindView(R.id.email_et)
+    EditText emailEt;
 
-    @BindView(R.id.send_code_button)
-    Button sendCodeButton;
+    @BindView(R.id.send_code_btn)
+    Button sendCodeBtn;
+
+    private GoogleApiClient apiClient;
+    private HintRequest hintRequest;
 
     private String phoneNumber;
     private String phoneNumberCode;
@@ -56,29 +64,40 @@ public class MSGLoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_msg_login);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        setContentView(R.layout.activity_msg_sign_up);
 
         ButterKnife.bind(this);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(R.drawable.arrow_back);
+        getPhoneNumberInit();
+        init();
+    }
 
-        GoogleApiClient apiClient = new GoogleApiClient.Builder(getApplicationContext())
+    private void getPhoneNumberInit() {
+        apiClient = new GoogleApiClient.Builder(getApplicationContext())
                 .enableAutoManage(this, 0, null)
                 .addApi(Auth.CREDENTIALS_API)
                 .build();
 
-        HintRequest hintRequest = new HintRequest.Builder()
+        hintRequest = new HintRequest.Builder()
                 .setPhoneNumberIdentifierSupported(true)
                 .build();
+    }
 
-        phoneNumberEdit.setOnFocusChangeListener((view, hasFocus) -> {
-            if (phoneNumberEdit.getEditableText().length() == 0) {
+    private void init() {
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        Drawable drawable = getMyDrawable(R.drawable.arrow_left);
+        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+        int length = (int) (20 * AppManager.getDensityRatio());
+        drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, length, length, true));
+        actionBar.setHomeAsUpIndicator(drawable);
+
+        phoneNumberEt.setOnFocusChangeListener((view, hasFocus) -> {
+            if (phoneNumberEt.getEditableText().length() == 0) {
                 if (hasFocus) {
                     PendingIntent intent = Auth.CredentialsApi.getHintPickerIntent(apiClient, hintRequest);
                     try {
@@ -89,10 +108,12 @@ public class MSGLoginActivity extends AppCompatActivity {
                 }
             }
         });
-        phoneNumberEdit.addTextChangedListener(getTextWatcher("phone"));
-        phoneNumberEdit.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+        phoneNumberEt.addTextChangedListener(getTextWatcher("phone"));
+        phoneNumberEt.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
-        emailEdit.addTextChangedListener(getTextWatcher("email"));
+        emailEt.addTextChangedListener(getTextWatcher("email"));
+
+        sendCodeBtn.setTag("");
     }
 
     @Override
@@ -108,9 +129,10 @@ public class MSGLoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         FragmentManager fm = getSupportFragmentManager();
-        if (fm.getFragments().size() > 0)
-            fm.beginTransaction().replace(R.id.fragment_layout, new Fragment()).commit();
+        Fragment fragment;
 
+        if ((fragment = fm.findFragmentByTag("create_password")) != null) fm.beginTransaction().remove(fragment).commit();
+        else if ((fragment = fm.findFragmentByTag("auth_code")) != null) fm.beginTransaction().remove(fragment).commit();
         else finish();
     }
 
@@ -131,43 +153,30 @@ public class MSGLoginActivity extends AppCompatActivity {
                 switch (name) {
                     case "phone" : {
                         if (s.length() > 0) {
-                            emailEdit.setEnabled(false);
-                            applyButton(true);
+                            emailEt.setEnabled(false);
+                            sendCodeBtn.setTag("prepared");
                         }
                         else {
-                            emailEdit.setEnabled(true);
-                            applyButton(false);
+                            emailEt.setEnabled(true);
+                            sendCodeBtn.setTag("");
                         }
-
-                        break;
                     }
+                    break;
+
                     case "email" : {
                         if (s.length() > 0) {
-                            phoneNumberEdit.setEnabled(false);
-                            applyButton(true);
+                            phoneNumberEt.setEnabled(false);
+                            sendCodeBtn.setTag("prepared");
                         }
                         else {
-                            phoneNumberEdit.setEnabled(true);
-                            applyButton(false);
+                            phoneNumberEt.setEnabled(true);
+                            sendCodeBtn.setTag("");
                         }
                     }
+                    break;
                 }
             }
         };
-    }
-
-    private void applyButton(boolean isPrepared) {
-        if (isPrepared) {
-            sendCodeButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.activated_button, getTheme()));
-            sendCodeButton.setTextColor(getColor(android.R.color.white));
-            sendCodeButton.setTag("prepared");
-        }
-
-        else {
-            sendCodeButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.normal_button, getTheme()));
-            sendCodeButton.setTextColor(getColor(android.R.color.black));
-            sendCodeButton.setTag(null);
-        }
     }
 
     @Override
@@ -177,51 +186,62 @@ public class MSGLoginActivity extends AppCompatActivity {
         if (requestCode == REQUEST_PHONE_HINT && resultCode == Activity.RESULT_OK) {
             Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
             phoneNumber = credential.getId().replace("+82", "0");
-            phoneNumberEdit.setText(phoneNumber);
+            phoneNumberEt.setText(phoneNumber);
         }
     }
 
-    @OnClick(R.id.send_code_button)
-    void onSendCodeButtonClicked() {
-        if (sendCodeButton.getTag().equals("prepared")) {
-            if (phoneNumberEdit.isEnabled()) {
-                if (phoneNumberEdit.getEditableText().length() > 0) {
-                    SendSMSClient client = SendSMSClient.getInstance();
-                    client.sendSMS(phoneNumber);
+    @OnClick(R.id.send_code_btn)
+    void onSendCodeBtnClicked() {
+        if (sendCodeBtn.getTag().equals("prepared")) {
+            LoadingDialogFragment fragment = new LoadingDialogFragment();
+
+            if (phoneNumberEt.isEnabled()) {
+                fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
+
+                SendSMSClient client = SendSMSClient.getInstance();
+                client.sendSMS(phoneNumber, () -> {
+                    fragment.dismiss();
+
                     phoneNumberCode = client.getCode();
 
-                    Snackbar.make(getWindow().getDecorView(), "휴대폰 인증 코드를 전송하였습니다.", Snackbar.LENGTH_SHORT).show();
                     startAuthCodeFragment();
-                }
-
-                else Snackbar.make(getWindow().getDecorView(), "입력란을 채워주세요.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(getWindow().getDecorView(), "휴대폰 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+                });
             }
 
-            if (emailEdit.isEnabled()) {
-                if (emailEdit.getEditableText().length() > 0) {
-                    GMailSender gMailSender = GMailSender.getInstance();
-                    email = emailEdit.getEditableText().toString();
-                    gMailSender.sendMail(email);
-                    emailCode = gMailSender.getEmailCode();
+            if (emailEt.isEnabled()) {
+                email = emailEt.getEditableText().toString();
 
-                    Snackbar.make(getWindow().getDecorView(), "이메일 인증 코드를 전송하였습니다.", Snackbar.LENGTH_SHORT).show();
-                    startAuthCodeFragment();
+                if (GMailSender.isValidEmailAddress(email)) {
+                    fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
+
+                    GMailSender gMailSender = GMailSender.getInstance();
+                    gMailSender.sendMail(email, () -> {
+                        fragment.dismiss();
+
+                        emailCode = gMailSender.getEmailCode();
+
+                        startAuthCodeFragment();
+                        Snackbar.make(getWindow().getDecorView(), "이메일 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+                    });
                 }
 
-                else Snackbar.make(getWindow().getDecorView(), "입력란을 채워주세요.", Snackbar.LENGTH_SHORT).show();
+                else Toast.makeText(getApplicationContext(), "이메일 주소가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
             }
         }
+
+        else Toast.makeText(getApplicationContext(), "입력란을 채워주세요.", Toast.LENGTH_SHORT).show();
     }
 
     private void startAuthCodeFragment() {
         Bundle bundle = new Bundle();
         String address = null, code = null;
 
-        if (phoneNumberEdit.isEnabled()) {
+        if (phoneNumberEt.isEnabled()) {
             address = phoneNumber;
             code = phoneNumberCode;
         }
-        if (emailEdit.isEnabled()) {
+        if (emailEt.isEnabled()) {
             address = email;
             code = emailCode;
         }
@@ -231,9 +251,13 @@ public class MSGLoginActivity extends AppCompatActivity {
         AuthCodeFragment fragment = new AuthCodeFragment();
         fragment.setArguments(bundle);
 
+        addFragment(fragment, "auth_code");
+    }
+
+    public void addFragment(Fragment fragment, String tag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, 0, 0);
-        transaction.replace(R.id.fragment_layout, fragment);
+        transaction.add(R.id.fragment_layout, fragment, tag);
         transaction.commit();
     }
 }

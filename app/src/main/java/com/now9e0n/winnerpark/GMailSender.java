@@ -15,6 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -32,7 +33,6 @@ public class GMailSender extends javax.mail.Authenticator {
     private GMailSender() {
         user = "now9e0n@gmail.com";
         password = "adicoehaphdzndgf";
-        emailCode = createCode();
 
         Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
@@ -54,7 +54,7 @@ public class GMailSender extends javax.mail.Authenticator {
             int random = (int) (Math.random() * str.length);
             newCode.append(str[random]);
         }
-
+        
         return newCode.toString();
     }
 
@@ -63,7 +63,20 @@ public class GMailSender extends javax.mail.Authenticator {
         return new PasswordAuthentication(user, password);
     }
 
-    public synchronized void sendMail(String recipients) {
+    public static boolean isValidEmailAddress(String email) {
+        boolean result = true;
+        try {
+            InternetAddress emailAddress = new InternetAddress(email);
+            emailAddress.validate();
+        } catch (AddressException e) {
+            Log.e("GMailSender", "Email Address Validate Failed", e);
+            result = false;
+        }
+
+        return result;
+    }
+
+    public void sendMail(String recipients, Runnable runnable) {
         new Thread() {
             @SneakyThrows(Exception.class)
             @Override
@@ -86,6 +99,7 @@ public class GMailSender extends javax.mail.Authenticator {
                 else message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipients));
 
                 Transport.send(message);
+                runnable.run();
             }
         }.start();
     }

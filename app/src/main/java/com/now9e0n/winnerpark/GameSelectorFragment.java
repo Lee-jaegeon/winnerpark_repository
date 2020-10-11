@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +21,8 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
+
 public class GameSelectorFragment extends Fragment {
 
     @BindView(R.id.recycler_view)
@@ -30,7 +31,6 @@ public class GameSelectorFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_selector, container, false);
-
         ButterKnife.bind(this, view);
 
         LinkedHashMap<String, Drawable> gameInfoMap = new LinkedHashMap<>();
@@ -41,7 +41,7 @@ public class GameSelectorFragment extends Fragment {
             String fileGameName = gameName.replaceAll("[^a-z ]", "").replace(" ", "_").trim();
 
             int drawableId = getResources().getIdentifier(fileGameName, "drawable", packageName);
-            Drawable gameDrawable = ResourcesCompat.getDrawable(getResources(), drawableId, getContext().getTheme());
+            Drawable gameDrawable = getMyDrawable(drawableId);
 
             gameInfoMap.put(gameName, gameDrawable);
         }
@@ -67,9 +67,9 @@ public class GameSelectorFragment extends Fragment {
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
-            @BindView(R.id.image_view_item)
+            @BindView(R.id.item_imv)
             ImageView imageView;
-            @BindView(R.id.text_view_item)
+            @BindView(R.id.item_tv)
             TextView textView;
 
             public ViewHolder(View itemView) {

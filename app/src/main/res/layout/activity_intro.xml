@@ -2,10 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".IntroActivity">
+    android:layout_height="match_parent">
 
     <com.now9e0n.winnerpark.CustomViewPager
         android:id="@+id/view_pager"
@@ -16,35 +14,43 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <com.now9e0n.winnerpark.CircleIndicator
-        android:id="@+id/circle_indicator"
+    <com.rd.PageIndicatorView
+        android:id="@+id/page_indicator_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:orientation="horizontal"
+        android:layout_marginBottom="44dp"
+        app:piv_animationType="worm"
+        app:piv_dynamicCount="true"
+        app:piv_selectedColor="@android:color/white"
+        app:piv_unselectedColor="@color/light_gray"
+        app:piv_viewPager="@id/view_pager"
+        app:piv_padding="12dp"
+        app:piv_radius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
-        android:id="@+id/skip_text_view"
+        android:id="@+id/skip_tv"
         android:layout_width="120dp"
         android:layout_height="30dp"
         android:layout_marginBottom="37dp"
         android:gravity="center"
         android:text="건너띄기"
+        android:textColor="@android:color/black"
         android:fontFamily="@font/arita_l"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/next_text_view"
+        android:id="@+id/next_tv"
         android:layout_width="120dp"
         android:layout_height="30dp"
         android:layout_marginBottom="37dp"
         android:gravity="center"
         android:text="다음"
+        android:textColor="@android:color/black"
         android:fontFamily="@font/arita_l"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="parent"
