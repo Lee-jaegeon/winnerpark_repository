@@ -33,6 +33,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -98,6 +99,21 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void init() {
+        idEt.setOnFocusChangeListener((view, focus) -> {
+            if (focus) ((TextInputLayout) idEt.getParent().getParent()).setError("");
+        });
+        passwordEt.setOnFocusChangeListener((view, focus) -> {
+            TextInputLayout layout = (TextInputLayout) passwordEt.getParent().getParent();
+
+            if (focus) {
+                layout.setError("");
+                layout.setEndIconMode(TextInputLayout.END_ICON_PASSWORD_TOGGLE);
+            }
+            else layout.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        });
+
+        loginImv.setTag("");
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -116,19 +132,21 @@ public class LoginActivity extends AppCompatActivity {
                 if (getCurrentFocus() == passwordEt) indicator = passwordIndicator;
 
                 if (indicator != null) {
-                    if (s.length() > 0) colorAnimate(indicator, getMyColor(R.color.blue));
+                    if (s.length() > 0) colorAnimate(indicator, getMyColor(R.color.light_blue));
                     else colorAnimate(indicator, getMyColor(R.color.light_gray));
 
                     Drawable drawable = loginImv.getDrawable();
                     if (idEt.getEditableText().length() > 0 && passwordEt.getEditableText().length() > 0) {
+                        loginImv.setTag("prepared");
                         drawable.setTint(getMyColor(android.R.color.white));
                         loginImv.setImageDrawable(drawable);
-                        loginImv.setBackground(getMyDrawable(R.drawable.background_login_activated));
+                        loginImv.setBackground(getMyDrawable(R.drawable.bg_login_activated));
                     }
                     else {
+                        loginImv.setTag("");
                         drawable.setTint(getMyColor(R.color.light_gray));
                         loginImv.setImageDrawable(drawable);
-                        loginImv.setBackground(getMyDrawable(R.drawable.background_login_normal));
+                        loginImv.setBackground(getMyDrawable(R.drawable.bg_login_normal));
                     }
                 }
             }
@@ -174,7 +192,15 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.login_imv)
     void onLoginImvClicked() {
+        if (idEt.getEditableText().length() == 0)
+            ((TextInputLayout) idEt.getParent().getParent()).setError("입력란을 채워주세요 :)");
 
+        if (passwordEt.getEditableText().length() == 0)
+            ((TextInputLayout) passwordEt.getParent().getParent()).setError("입력란을 채워주세요 :)");
+
+        if (loginImv.getTag().equals("prepared")) {
+
+        }
     }
 
     @OnClick(R.id.google_login_btn)

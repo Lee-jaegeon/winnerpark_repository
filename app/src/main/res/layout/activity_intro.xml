@@ -8,52 +8,55 @@
     <com.now9e0n.winnerpark.CustomViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <com.rd.PageIndicatorView
-        android:id="@+id/page_indicator_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="44dp"
-        app:piv_animationType="worm"
-        app:piv_dynamicCount="true"
-        app:piv_selectedColor="@android:color/white"
-        app:piv_unselectedColor="@color/light_gray"
-        app:piv_viewPager="@id/view_pager"
-        app:piv_padding="12dp"
-        app:piv_radius="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:layout_height="match_parent" />
 
     <TextView
         android:id="@+id/skip_tv"
         android:layout_width="120dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="37dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="50dp"
         android:gravity="center"
         android:text="건너띄기"
         android:textColor="@android:color/black"
         android:fontFamily="@font/arita_l"
         android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintStart_toEndOf="@id/skip_tv"
+        app:layout_constraintEnd_toStartOf="@+id/next_tv"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.rd.PageIndicatorView
+            android:id="@+id/page_indicator_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            app:piv_animationType="worm"
+            app:piv_dynamicCount="true"
+            app:piv_padding="12dp"
+            app:piv_radius="8dp"
+            app:piv_selectedColor="@android:color/white"
+            app:piv_unselectedColor="@color/light_gray"
+            app:piv_viewPager="@id/view_pager" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/next_tv"
         android:layout_width="120dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="37dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="50dp"
         android:gravity="center"
         android:text="다음"
         android:textColor="@android:color/black"
         android:fontFamily="@font/arita_l"
         android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:layout_marginStart="35dp"
-        android:text="6자리 코드 입력"
+        android:text="4자리 코드 입력"
         android:textColor="@android:color/black"
         android:fontFamily="@font/arita_b"
         android:textSize="30sp"
@@ -52,7 +52,7 @@
         android:textColor="@android:color/black"
         android:fontFamily="@font/arita_b"
         android:textSize="20sp"
-        app:OtpLineColor="@color/light_gray"
+        app:OtpLineColor="@color/dark_gray"
         app:layout_constraintTop_toBottomOf="@+id/annotation_tv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -75,17 +75,18 @@
             android:layout_weight="1"
             android:layout_marginEnd="50dp"
             android:gravity="center"
-            android:text="재전송"
+            android:text="재전송\n(2회 남음)"
             android:fontFamily="@font/arita_n"
-            android:textColor="@color/dark_gray"
-            android:textSize="20sp" />
+            android:textColor="@color/light_gray"
+            android:textSize="23sp"
+            android:lineSpacingExtra="10dp" />
 
-        <Button
-            android:id="@+id/confirm_btn"
+        <TextView
+            android:id="@+id/confirm_tv"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:background="@drawable/btn_rectangle"
+            android:gravity="center"
             android:layout_marginStart="50dp"
             android:text="확인"
             android:fontFamily="@font/arita_b"

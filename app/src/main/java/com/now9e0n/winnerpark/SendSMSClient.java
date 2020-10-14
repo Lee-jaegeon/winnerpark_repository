@@ -13,24 +13,27 @@ public class SendSMSClient {
     private Message coolSMS;
 
     private HashMap<String, String> params;
+    private String message;
     @Getter private String code;
 
     private SendSMSClient() {
-        String apiKey = "NCSL7HZZRNDEW0B0";
-        String apiSecret = "KA0UBKZJGEZ86ZMRI65SBLZC2FVWADRD";
+        String apiKey = "NCSEQYOMRUHCX7HF";
+        String apiSecret = "BGJNK4K5NSHJ86D3IFO2D7L1LRTMANSX";
         coolSMS = new Message(apiKey, apiSecret);
 
         params = new HashMap<>();
         params.put("from", "01067166386");
         params.put("type", "SMS");
+
+        String appHash = "M+HJuMIR4LC";
+        message = "<#> [Winner Park]\n" +"#" + " is your verification code.\n" + appHash;
     }
 
     public void sendSMS(String toPhoneNumber, Runnable runnable) {
         params.put("to", toPhoneNumber);
 
         code = createCode();
-        String message = "[Winner Park]\n" + code + " is your verification code.";
-        params.put("text", message);
+        params.put("text", message.replace("#", code));
 
         new Thread() {
             @SneakyThrows
@@ -45,7 +48,7 @@ public class SendSMSClient {
     private String createCode() {
         String[] str = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
         StringBuilder newCode = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             int random = (int) (Math.random() * str.length);
             newCode.append(str[random]);
         }
@@ -53,4 +56,3 @@ public class SendSMSClient {
         return newCode.toString();
     }
 }
-

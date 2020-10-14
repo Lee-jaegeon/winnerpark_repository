@@ -48,27 +48,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="17.5dp">
 
             <View
                 android:id="@+id/id_indicator"
                 android:layout_width="2dp"
-                android:layout_height="match_parent"
+                android:layout_height="70dp"
                 android:layout_marginEnd="5dp"
                 android:background="@color/light_gray" />
 
-            <com.now9e0n.winnerpark.CustomEditText
-                android:id="@+id/id_et"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:background="@null"
-                android:inputType="textEmailAddress"
-                android:hint="SMS 또는 이메일"
-                android:textColorHint="@color/dark_gray"
-                android:textColor="@android:color/black"
-                android:fontFamily="@font/arita_n"
-                android:textSize="18sp" />
+                app:hintEnabled="false"
+                app:errorEnabled="true"
+                app:errorTextColor="@color/red"
+                app:endIconMode="clear_text"
+                app:endIconTint="@android:color/black">
+
+                <EditText
+                    style="@style/EditTextTheme"
+                    android:id="@+id/id_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:background="@null"
+                    android:inputType="textEmailAddress"
+                    android:hint="SMS 또는 이메일" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
@@ -76,27 +84,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="17.5dp">
 
             <View
                 android:id="@+id/password_indicator"
                 android:layout_width="2dp"
-                android:layout_height="match_parent"
+                android:layout_height="70dp"
                 android:layout_marginEnd="5dp"
                 android:background="@color/light_gray" />
 
-            <com.now9e0n.winnerpark.CustomEditText
-                android:id="@+id/password_et"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:background="@null"
-                android:inputType="textPassword"
-                android:hint="비밀번호"
-                android:textColorHint="@color/dark_gray"
-                android:textColor="@android:color/black"
-                android:fontFamily="@font/arita_n"
-                android:textSize="18sp" />
+                app:hintEnabled="false"
+                app:errorEnabled="true"
+                app:errorTextColor="@color/red"
+                app:endIconMode="none"
+                app:endIconTint="@android:color/black">
+
+                <EditText
+                    style="@style/EditTextTheme"
+                    android:id="@+id/password_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:background="@null"
+                    android:inputType="textPassword"
+                    android:hint="비밀번호" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
@@ -106,9 +122,9 @@
         android:id="@+id/login_imv"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="25dp"
         android:src="@drawable/arrow_right"
-        android:background="@drawable/background_login_normal"
+        android:background="@drawable/bg_login_normal"
         android:padding="25dp"
         app:tint="@color/light_gray"
         app:layout_constraintStart_toStartOf="parent"

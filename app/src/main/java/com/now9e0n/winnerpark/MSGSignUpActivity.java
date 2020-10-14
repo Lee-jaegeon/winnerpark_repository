@@ -13,9 +13,16 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,6 +42,11 @@ import com.google.android.material.snackbar.Snackbar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.internal.EverythingIsNonNull;
 
 import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
 
@@ -50,6 +62,9 @@ public class MSGSignUpActivity extends AppCompatActivity {
     @BindView(R.id.email_et)
     EditText emailEt;
 
+    @BindView(R.id.error_tv)
+    TextView errorTv;
+
     @BindView(R.id.send_code_btn)
     Button sendCodeBtn;
 
@@ -60,6 +75,8 @@ public class MSGSignUpActivity extends AppCompatActivity {
     private String phoneNumberCode;
     private String email;
     private String emailCode;
+
+    public int reSendCount = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,8 +148,15 @@ public class MSGSignUpActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment;
 
-        if ((fragment = fm.findFragmentByTag("create_password")) != null) fm.beginTransaction().remove(fragment).commit();
-        else if ((fragment = fm.findFragmentByTag("auth_code")) != null) fm.beginTransaction().remove(fragment).commit();
+        if ((fragment = fm.findFragmentByTag("create_password")) != null) {
+            fm.beginTransaction().remove(fragment).commit();
+            fragment = fm.findFragmentByTag("auth_code");
+            fm.beginTransaction().remove(fragment).commit();
+        }
+
+        else if ((fragment = fm.findFragmentByTag("auth_code")) != null)
+            fm.beginTransaction().remove(fragment).commit();
+
         else finish();
     }
 
@@ -151,7 +175,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 switch (name) {
-                    case "phone" : {
+                    case "phone" :
                         if (s.length() > 0) {
                             emailEt.setEnabled(false);
                             sendCodeBtn.setTag("prepared");
@@ -160,10 +184,9 @@ public class MSGSignUpActivity extends AppCompatActivity {
                             emailEt.setEnabled(true);
                             sendCodeBtn.setTag("");
                         }
-                    }
-                    break;
+                        break;
 
-                    case "email" : {
+                    case "email" :
                         if (s.length() > 0) {
                             phoneNumberEt.setEnabled(false);
                             sendCodeBtn.setTag("prepared");
@@ -172,8 +195,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
                             phoneNumberEt.setEnabled(true);
                             sendCodeBtn.setTag("");
                         }
-                    }
-                    break;
+                        break;
                 }
             }
         };
@@ -192,45 +214,87 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
     @OnClick(R.id.send_code_btn)
     void onSendCodeBtnClicked() {
-        if (sendCodeBtn.getTag().equals("prepared")) {
-            LoadingDialogFragment fragment = new LoadingDialogFragment();
+        if ((phoneNumberEt.getEditableText().length() == 0 && emailEt.getEditableText().length() == 0))
+            showErrorTv();
 
-            if (phoneNumberEt.isEnabled()) {
-                fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
+        if (sendCodeBtn.getTag().equals("prepared")) sendCode();
+    }
 
-                SendSMSClient client = SendSMSClient.getInstance();
-                client.sendSMS(phoneNumber, () -> {
-                    fragment.dismiss();
+    private void showErrorTv() {
+        errorTv.setVisibility(View.VISIBLE);
 
-                    phoneNumberCode = client.getCode();
+        Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new DecelerateInterpolator());
 
-                    startAuthCodeFragment();
-                    Snackbar.make(getWindow().getDecorView(), "휴대폰 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
-                });
+        Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator());
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
             }
 
-            if (emailEt.isEnabled()) {
-                email = emailEt.getEditableText().toString();
-
-                if (GMailSender.isValidEmailAddress(email)) {
-                    fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
-
-                    GMailSender gMailSender = GMailSender.getInstance();
-                    gMailSender.sendMail(email, () -> {
-                        fragment.dismiss();
-
-                        emailCode = gMailSender.getEmailCode();
-
-                        startAuthCodeFragment();
-                        Snackbar.make(getWindow().getDecorView(), "이메일 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
-                    });
-                }
-
-                else Toast.makeText(getApplicationContext(), "이메일 주소가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                errorTv.setVisibility(View.INVISIBLE);
             }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        AnimationSet animation = new AnimationSet(false);
+        animation.setDuration(1000);
+        animation.addAnimation(fadeIn);
+        animation.addAnimation(fadeOut);
+
+        errorTv.setAnimation(animation);
+    }
+
+    public String sendCode() {
+        LoadingDialogFragment fragment = new LoadingDialogFragment();
+
+        if (phoneNumberEt.isEnabled()) {
+            fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
+
+            SendSMSClient client = SendSMSClient.getInstance();
+            client.sendSMS(phoneNumber, () -> {
+                fragment.dismiss();
+
+                phoneNumberCode = client.getCode();
+
+                if (getSupportFragmentManager().findFragmentByTag("auth_code") == null) startAuthCodeFragment();
+                Snackbar.make(getWindow().getDecorView(), "휴대폰 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+            });
+
+            return phoneNumberCode;
         }
 
-        else Toast.makeText(getApplicationContext(), "입력란을 채워주세요.", Toast.LENGTH_SHORT).show();
+        if (emailEt.isEnabled()) {
+            email = emailEt.getEditableText().toString();
+
+            if (GMailSender.isValidEmailAddress(email)) {
+                fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
+
+                GMailSender gMailSender = GMailSender.getInstance();
+                gMailSender.sendMail(email, () -> {
+                    fragment.dismiss();
+
+                    emailCode = gMailSender.getEmailCode();
+
+                    if (getSupportFragmentManager().findFragmentByTag("auth_code") == null) startAuthCodeFragment();
+                    Snackbar.make(getWindow().getDecorView(), "이메일 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+                });
+
+                return emailCode;
+            }
+
+            else Toast.makeText(getApplicationContext(), "이메일 주소가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+        }
+
+        return null;
     }
 
     private void startAuthCodeFragment() {
@@ -256,8 +320,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
     public void addFragment(Fragment fragment, String tag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, 0, 0);
-        transaction.add(R.id.fragment_layout, fragment, tag);
-        transaction.commit();
+        transaction.setCustomAnimations(R.anim.enter_from_right, 0, 0, R.anim.exit_to_right);
+        transaction.add(R.id.fragment_layout, fragment, tag).commit();
     }
 }
