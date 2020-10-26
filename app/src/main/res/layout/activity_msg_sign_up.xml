@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:ignore="RtlSymmetry">
@@ -33,93 +32,121 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/subtitle_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="35dp"
+                android:layout_marginTop="80dp"
+                android:text="두 입력란 중 하나를 입력해주세요 :)"
+                android:textColor="@color/dark_gray"
+                android:fontFamily="@font/arita_n"
+                android:textSize="15sp"/>
 
             <LinearLayout
+                android:id="@+id/sign_up_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="70dp"
+                android:layout_below="@id/subtitle_tv"
+                android:layout_marginTop="30dp"
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="32dp">
 
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:hintEnabled="false"
-                    app:errorEnabled="true"
-                    app:errorTextColor="@color/red"
-                    app:endIconMode="clear_text"
-                    app:endIconTint="@android:color/black">
+                    android:orientation="horizontal">
 
-                    <EditText
-                        style="@style/EditTextTheme"
-                        android:id="@+id/phone_number_et"
+                    <com.now9e0n.winnerpark.EditTextIndicator
+                        android:layout_width="2dp"
+                        android:layout_height="70dp"
+                        android:layout_marginEnd="5dp"
+                        app:edit_text="@id/phone_number_et"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextInputLayoutStyle"
                         android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:background="@drawable/bg_et_selector"
-                        android:paddingStart="5dp"
-                        android:inputType="phone"
-                        android:hint="전화번호" />
+                        android:layout_height="wrap_content"
+                        app:errorEnabled="false"
+                        android:layout_marginStart="5dp">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <EditText
+                            style="@style/EditTextStyle"
+                            android:id="@+id/phone_number_et"
+                            android:layout_width="match_parent"
+                            android:layout_height="70dp"
+                            android:background="@android:color/transparent"
+                            android:inputType="phone"
+                            android:hint="전화번호" />
 
-                <TextView
-                    android:id="@+id/annotation_tv"
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:gravity="center"
-                    android:text="또는"
-                    android:textColor="@color/dark_gray"
-                    android:fontFamily="@font/arita_l"
-                    android:textSize="17sp" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="50dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:hintEnabled="false"
-                    app:errorEnabled="true"
-                    app:errorTextColor="@color/red"
-                    app:endIconMode="clear_text"
-                    app:endIconTint="@android:color/black">
+                    <com.now9e0n.winnerpark.EditTextIndicator
+                        android:layout_width="2dp"
+                        android:layout_height="70dp"
+                        android:layout_marginEnd="5dp"
+                        app:edit_text="@id/email_et"/>
 
-                    <EditText
-                        style="@style/EditTextTheme"
-                        android:id="@+id/email_et"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/TextInputLayoutStyle"
                         android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:background="@drawable/bg_et_selector"
-                        android:paddingStart="5dp"
-                        android:inputType="textEmailAddress"
-                        android:hint="이메일" />
+                        android:layout_height="wrap_content"
+                        app:errorEnabled="false"
+                        android:layout_marginStart="5dp">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <EditText
+                            style="@style/EditTextStyle"
+                            android:id="@+id/email_et"
+                            android:layout_width="match_parent"
+                            android:layout_height="70dp"
+                            android:background="@android:color/transparent"
+                            android:inputType="textEmailAddress"
+                            android:hint="이메일" />
 
-                <TextView
-                    android:id="@+id/error_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    android:layout_marginTop="30dp"
-                    android:gravity="center"
-                    android:text="두 입력란 중 하나를 채워주세요 :)"
-                    android:textColor="@color/red"
-                    android:textSize="15sp"
-                    android:fontFamily="@font/arita_n" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <Button
-                    android:id="@+id/send_code_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="70dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/btn_round"
-                    android:text="코드 전송"
-                    android:textColor="@android:color/white"
-                    android:fontFamily="@font/arita_b"
-                    android:textSize="25sp" />
+                </LinearLayout>
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/error_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:layout_below="@id/sign_up_layout"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="두 입력란 중 하나를 채워주세요 :)"
+                android:textColor="@color/red"
+                android:textSize="15sp"
+                android:fontFamily="@font/arita_n" />
+
+            <Button
+                android:id="@+id/send_code_btn"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_below="@+id/error_tv"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_btn_big"
+                android:text="코드 전송"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/arita_b"
+                android:textSize="25sp" />
 
         </RelativeLayout>
 

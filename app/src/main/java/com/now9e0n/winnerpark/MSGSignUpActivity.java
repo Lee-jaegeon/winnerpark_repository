@@ -1,15 +1,14 @@
 package com.now9e0n.winnerpark;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
@@ -36,23 +35,26 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.auth.api.credentials.HintRequest;
+import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.internal.EverythingIsNonNull;
+import lombok.Getter;
 
-import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
+import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
+import static com.now9e0n.winnerpark.AppManager.getReSizedDrawable;
 
 public class MSGSignUpActivity extends AppCompatActivity {
 
-    private static final int REQUEST_PHONE_HINT = 101;
+    private static final int RC_PHONE_HINT = 101;
+    private static final int RC_EMAIL_CHOOSE = 102;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -76,7 +78,10 @@ public class MSGSignUpActivity extends AppCompatActivity {
     private String email;
     private String emailCode;
 
-    public int reSendCount = 2;
+    private AuthCodeFragment fragment;
+
+    private TimerTask task;
+    @Getter private long deltaTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,19 +91,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        getPhoneNumberInit();
         init();
-    }
-
-    private void getPhoneNumberInit() {
-        apiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .enableAutoManage(this, 0, null)
-                .addApi(Auth.CREDENTIALS_API)
-                .build();
-
-        hintRequest = new HintRequest.Builder()
-                .setPhoneNumberIdentifierSupported(true)
-                .build();
     }
 
     private void init() {
@@ -107,24 +100,34 @@ public class MSGSignUpActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        Drawable drawable = getMyDrawable(R.drawable.arrow_left);
-        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-        int length = (int) (20 * AppManager.getDensityRatio());
-        drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, length, length, true));
-        actionBar.setHomeAsUpIndicator(drawable);
+        actionBar.setHomeAsUpIndicator(getReSizedDrawable(R.drawable.arrow_left, 20, 20));
+
+        apiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .enableAutoManage(this, 0, null)
+                .addApi(Auth.CREDENTIALS_API)
+                .build();
+
+        hintRequest = new HintRequest.Builder()
+                .setPhoneNumberIdentifierSupported(true)
+                .build();
 
         phoneNumberEt.setOnFocusChangeListener((view, hasFocus) -> {
-            if (phoneNumberEt.getEditableText().length() == 0) {
-                if (hasFocus) {
-                    PendingIntent intent = Auth.CredentialsApi.getHintPickerIntent(apiClient, hintRequest);
-                    try {
-                        startIntentSenderForResult(intent.getIntentSender(), REQUEST_PHONE_HINT, null, 0, 0, 0);
-                    } catch (IntentSender.SendIntentException e) {
-                        Log.e("Phone", "Request Phone Number Failed", e);
-                    }
+            if (TextUtils.isEmpty(phoneNumberEt.getEditableText()) && hasFocus) {
+                PendingIntent intent = Auth.CredentialsApi.getHintPickerIntent(apiClient, hintRequest);
+                try {
+                    startIntentSenderForResult(intent.getIntentSender(), RC_PHONE_HINT, null, 0, 0, 0);
+                } catch (IntentSender.SendIntentException e) {
+                    Log.e("Phone", "Request Phone Number Failed", e);
                 }
             }
         });
+        emailEt.setOnFocusChangeListener((view, hasFocus) -> {
+            if (TextUtils.isEmpty(emailEt.getEditableText()) && hasFocus) {
+                Intent googlePicker = AccountPicker.newChooseAccountIntent(new AccountPicker.AccountChooserOptions.Builder().build());
+                startActivityForResult(googlePicker, RC_EMAIL_CHOOSE);
+            }
+        });
+
         phoneNumberEt.addTextChangedListener(getTextWatcher("phone"));
         phoneNumberEt.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
@@ -176,48 +179,61 @@ public class MSGSignUpActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 switch (name) {
                     case "phone" :
-                        if (s.length() > 0) {
-                            emailEt.setEnabled(false);
-                            sendCodeBtn.setTag("prepared");
-                        }
-                        else {
-                            emailEt.setEnabled(true);
-                            sendCodeBtn.setTag("");
-                        }
+                        applyUI(emailEt, s.length() > 0);
                         break;
 
                     case "email" :
-                        if (s.length() > 0) {
-                            phoneNumberEt.setEnabled(false);
-                            sendCodeBtn.setTag("prepared");
-                        }
-                        else {
-                            phoneNumberEt.setEnabled(true);
-                            sendCodeBtn.setTag("");
-                        }
+                        applyUI(phoneNumberEt, s.length() > 0);
                         break;
                 }
             }
         };
     }
 
+    private void applyUI(EditText editText, boolean isInput) {
+        if (isInput) {
+            editText.setEnabled(false);
+            editText.setHintTextColor(getColor(R.color.white_gray));
+            sendCodeBtn.setTag("prepared");
+        }
+
+        else {
+            editText.setEnabled(true);
+            editText.setHintTextColor(getColor(R.color.dark_gray));
+            sendCodeBtn.setTag("");
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_PHONE_HINT && resultCode == Activity.RESULT_OK) {
-            Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
-            phoneNumber = credential.getId().replace("+82", "0");
-            phoneNumberEt.setText(phoneNumber);
+        if (requestCode == RC_PHONE_HINT && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
+                phoneNumber = credential.getId().replace("+82", "0");
+                phoneNumberEt.setText(phoneNumber);
+            }
+        }
+
+        if (requestCode == RC_EMAIL_CHOOSE && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                email = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                emailEt.setText(email);
+            }
         }
     }
 
     @OnClick(R.id.send_code_btn)
     void onSendCodeBtnClicked() {
-        if ((phoneNumberEt.getEditableText().length() == 0 && emailEt.getEditableText().length() == 0))
+        if ((TextUtils.isEmpty(phoneNumberEt.getEditableText()) && TextUtils.isEmpty(emailEt.getEditableText())))
             showErrorTv();
 
-        if (sendCodeBtn.getTag().equals("prepared")) sendCode();
+        if (sendCodeBtn.getTag().equals("prepared")) {
+            if (deltaTime == 0) sendCode();
+            else Toast.makeText(getApplicationContext(),
+                    "인증코드 재전송 : " + fragment.getTimer() + " 남음", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showErrorTv() {
@@ -253,66 +269,84 @@ public class MSGSignUpActivity extends AppCompatActivity {
         errorTv.setAnimation(animation);
     }
 
-    public String sendCode() {
-        LoadingDialogFragment fragment = new LoadingDialogFragment();
+    private void sendCode() {
+        LoadingDialogFragment loading = new LoadingDialogFragment();
+        fragment = new AuthCodeFragment();
 
         if (phoneNumberEt.isEnabled()) {
-            fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
+            loading.show(getSupportFragmentManager(), null);
 
             SendSMSClient client = SendSMSClient.getInstance();
             client.sendSMS(phoneNumber, () -> {
-                fragment.dismiss();
+                loading.dismiss();
 
+                startTimer(client.getDate());
                 phoneNumberCode = client.getCode();
 
-                if (getSupportFragmentManager().findFragmentByTag("auth_code") == null) startAuthCodeFragment();
+                startAuthCodeFragment();
+                fragment.startSMSReceiver();
                 Snackbar.make(getWindow().getDecorView(), "휴대폰 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
             });
-
-            return phoneNumberCode;
         }
 
         if (emailEt.isEnabled()) {
             email = emailEt.getEditableText().toString();
 
             if (GMailSender.isValidEmailAddress(email)) {
-                fragment.show(getSupportFragmentManager(), LoadingDialogFragment.TAG_LOADING_DIALOG);
+                loading.show(getSupportFragmentManager(), null);
 
                 GMailSender gMailSender = GMailSender.getInstance();
                 gMailSender.sendMail(email, () -> {
-                    fragment.dismiss();
+                    loading.dismiss();
 
+                    startTimer(gMailSender.getDate());
                     emailCode = gMailSender.getEmailCode();
 
-                    if (getSupportFragmentManager().findFragmentByTag("auth_code") == null) startAuthCodeFragment();
+                    startAuthCodeFragment();
                     Snackbar.make(getWindow().getDecorView(), "이메일 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
                 });
-
-                return emailCode;
             }
 
             else Toast.makeText(getApplicationContext(), "이메일 주소가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
         }
+    }
 
-        return null;
+    public void startTimer(Date date) {
+        if (task != null) task.cancel();
+
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                deltaTime = 180000 - (getCurrentDate(Date.class).getTime() - date.getTime());
+                if (deltaTime < 0) {
+                    deltaTime = 0;
+                    cancel();
+                }
+                if (fragment != null) runOnUiThread(() -> fragment.spanString());
+            }
+        };
+
+        new Timer().schedule(task, 0, 1000);
     }
 
     private void startAuthCodeFragment() {
         Bundle bundle = new Bundle();
-        String address = null, code = null;
+        String address = null, code = null, type = null;
 
         if (phoneNumberEt.isEnabled()) {
             address = phoneNumber;
             code = phoneNumberCode;
+            type = "phone";
         }
         if (emailEt.isEnabled()) {
             address = email;
             code = emailCode;
+            type = "email";
         }
 
         bundle.putString("address", address);
         bundle.putString("code", code);
-        AuthCodeFragment fragment = new AuthCodeFragment();
+        bundle.putString("type", type);
         fragment.setArguments(bundle);
 
         addFragment(fragment, "auth_code");

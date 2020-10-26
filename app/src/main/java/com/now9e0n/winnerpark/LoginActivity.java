@@ -1,16 +1,13 @@
 package com.now9e0n.winnerpark;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -48,19 +45,17 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
 import static com.now9e0n.winnerpark.AppManager.getMyColor;
 import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
-import static com.now9e0n.winnerpark.UserModel.getUserBySnapshot;
+import static com.now9e0n.winnerpark.User.getUserBySnapshot;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -68,14 +63,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private AppManager app;
 
+    private TextInputLayout idLayout;
     @BindView(R.id.id_et)
     EditText idEt;
-    @BindView(R.id.id_indicator)
-    View idIndicator;
+    private TextInputLayout passwordLayout;
     @BindView(R.id.password_et)
     EditText passwordEt;
-    @BindView(R.id.password_indicator)
-    View passwordIndicator;
 
     @BindView(R.id.login_imv)
     ImageView loginImv;
@@ -99,17 +92,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void init() {
-        idEt.setOnFocusChangeListener((view, focus) -> {
-            if (focus) ((TextInputLayout) idEt.getParent().getParent()).setError("");
-        });
-        passwordEt.setOnFocusChangeListener((view, focus) -> {
-            TextInputLayout layout = (TextInputLayout) passwordEt.getParent().getParent();
+        idLayout = (TextInputLayout) idEt.getParent().getParent();
+        passwordLayout = (TextInputLayout) passwordEt.getParent().getParent();
 
-            if (focus) {
-                layout.setError("");
-                layout.setEndIconMode(TextInputLayout.END_ICON_PASSWORD_TOGGLE);
-            }
-            else layout.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        passwordEt.setOnFocusChangeListener((view, focus) -> {
+            if (focus) passwordLayout.setEndIconMode(TextInputLayout.END_ICON_PASSWORD_TOGGLE);
+            else passwordLayout.setEndIconMode(TextInputLayout.END_ICON_NONE);
         });
 
         loginImv.setTag("");
@@ -117,7 +105,8 @@ public class LoginActivity extends AppCompatActivity {
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                if (getCurrentFocus() == idEt) idLayout.setError("");
+                if (getCurrentFocus() == passwordEt) passwordLayout.setError("");
             }
 
             @Override
@@ -127,41 +116,24 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                View indicator = null;
-                if (getCurrentFocus() == idEt) indicator = idIndicator;
-                if (getCurrentFocus() == passwordEt) indicator = passwordIndicator;
+                Drawable drawable = loginImv.getDrawable();
 
-                if (indicator != null) {
-                    if (s.length() > 0) colorAnimate(indicator, getMyColor(R.color.light_blue));
-                    else colorAnimate(indicator, getMyColor(R.color.light_gray));
-
-                    Drawable drawable = loginImv.getDrawable();
-                    if (idEt.getEditableText().length() > 0 && passwordEt.getEditableText().length() > 0) {
-                        loginImv.setTag("prepared");
-                        drawable.setTint(getMyColor(android.R.color.white));
-                        loginImv.setImageDrawable(drawable);
-                        loginImv.setBackground(getMyDrawable(R.drawable.bg_login_activated));
-                    }
-                    else {
-                        loginImv.setTag("");
-                        drawable.setTint(getMyColor(R.color.light_gray));
-                        loginImv.setImageDrawable(drawable);
-                        loginImv.setBackground(getMyDrawable(R.drawable.bg_login_normal));
-                    }
+                if (!TextUtils.isEmpty(idEt.getEditableText()) && !TextUtils.isEmpty(passwordEt.getEditableText())) {
+                    loginImv.setTag("prepared");
+                    drawable.setTint(getMyColor(android.R.color.white));
+                    loginImv.setImageDrawable(drawable);
+                    loginImv.setBackground(getMyDrawable(R.drawable.bg_login_activated));
+                } else {
+                    loginImv.setTag("");
+                    drawable.setTint(getMyColor(R.color.light_gray));
+                    loginImv.setImageDrawable(drawable);
+                    loginImv.setBackground(getMyDrawable(R.drawable.bg_login_normal));
                 }
             }
         };
 
         idEt.addTextChangedListener(textWatcher);
         passwordEt.addTextChangedListener(textWatcher);
-    }
-
-    private void colorAnimate(View indicator, int colorTo) {
-        int colorFrom = ((ColorDrawable) indicator.getBackground()).getColor();
-        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        colorAnimation.addUpdateListener(animator -> indicator.setBackgroundColor((int) animator.getAnimatedValue()));
-        colorAnimation.setDuration(750);
-        colorAnimation.start();
     }
 
     private void snsLoginInit() {
@@ -192,11 +164,11 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.login_imv)
     void onLoginImvClicked() {
-        if (idEt.getEditableText().length() == 0)
-            ((TextInputLayout) idEt.getParent().getParent()).setError("입력란을 채워주세요 :)");
+        if (TextUtils.isEmpty(idEt.getEditableText()))
+            idLayout.setError("입력란을 채워주세요 :)");
 
-        if (passwordEt.getEditableText().length() == 0)
-            ((TextInputLayout) passwordEt.getParent().getParent()).setError("입력란을 채워주세요 :)");
+        if (TextUtils.isEmpty(passwordEt.getEditableText()))
+            passwordLayout.setError("입력란을 채워주세요 :)");
 
         if (loginImv.getTag().equals("prepared")) {
 
@@ -256,14 +228,11 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 if (!snapshot.hasChild(firebaseUser.getUid())) {
-                                    SimpleDateFormat format = new SimpleDateFormat ( "yyyy-MM-dd", Locale.KOREA);
-                                    String date = format.format(new Date());
-
-                                    UserModel user = UserModel.builder()
+                                    User user = User.builder()
                                             .name(firebaseUser.getDisplayName())
                                             .phoneNumber(firebaseUser.getPhoneNumber())
                                             .email(firebaseUser.getEmail())
-                                            .createdDate(date)
+                                            .createdDate(getCurrentDate(String.class))
                                             .build();
 
                                     reference.push().setValue(user);
@@ -297,7 +266,7 @@ public class LoginActivity extends AppCompatActivity {
                 resource.compress(Bitmap.CompressFormat.JPEG, 100, byteOutStream);
                 byte[] data = byteOutStream.toByteArray();
 
-                storageReference.putBytes(data).addOnCompleteListener(task -> startNextActivity());
+                storageReference.putBytes(data).addOnCompleteListener(task -> startMainActivity());
             }
 
             @Override
@@ -309,7 +278,7 @@ public class LoginActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).asBitmap().load(user.getPhotoUrl()).into(target);
     }
 
-    private void startNextActivity() {
+    private void startMainActivity() {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

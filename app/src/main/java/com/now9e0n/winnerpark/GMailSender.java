@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -22,13 +23,18 @@ import javax.mail.internet.MimeMessage;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
+
 public class GMailSender extends javax.mail.Authenticator {
+
     @Getter private static GMailSender instance = new GMailSender();
 
     private String user;
     private String password;
     @Getter private String emailCode;
     private Session session;
+
+    @Getter private Date date;
 
     private GMailSender() {
         user = "now9e0n@gmail.com";
@@ -99,6 +105,8 @@ public class GMailSender extends javax.mail.Authenticator {
                 else message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipients));
 
                 Transport.send(message);
+
+                date = getCurrentDate(Date.class);
                 runnable.run();
             }
         }.start();

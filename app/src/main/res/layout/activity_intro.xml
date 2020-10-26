@@ -16,7 +16,7 @@
         android:layout_height="40dp"
         android:layout_marginBottom="50dp"
         android:gravity="center"
-        android:text="건너띄기"
+        android:text="건너뛰기"
         android:textColor="@android:color/black"
         android:fontFamily="@font/arita_l"
         android:textSize="17sp"

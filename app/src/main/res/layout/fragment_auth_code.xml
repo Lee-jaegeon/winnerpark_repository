@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="?android:colorBackground"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="0dp" />
+        android:src="?android:colorBackground" />
 
     <TextView
         android:id="@+id/title_tv"
@@ -22,27 +19,27 @@
         android:text="4자리 코드 입력"
         android:textColor="@android:color/black"
         android:fontFamily="@font/arita_b"
-        android:textSize="30sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="30sp" />
 
     <TextView
-        android:id="@+id/annotation_tv"
+        android:id="@+id/subtitle_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/title_tv"
         android:layout_marginTop="10dp"
         android:layout_marginStart="35dp"
-        android:text="코드를 #address# 으로 전송하였습니다."
+        android:text="코드를 #address# 으로 전송하였습니다 :)"
         android:textColor="@color/dark_gray"
         android:fontFamily="@font/arita_l"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_tv" />
+        android:textSize="15sp" />
 
     <com.mukesh.OtpView
         android:id="@+id/otp_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/subtitle_tv"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"
         app:OtpItemCount="4"
         app:OtpItemWidth="70dp"
@@ -52,21 +49,30 @@
         android:textColor="@android:color/black"
         android:fontFamily="@font/arita_b"
         android:textSize="20sp"
-        app:OtpLineColor="@color/dark_gray"
-        app:layout_constraintTop_toBottomOf="@+id/annotation_tv"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:OtpLineColor="@color/gray" />
+
+    <TextView
+        android:id="@+id/error_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_below="@id/otp_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="인증코드가 일치하지 않습니다."
+        android:textColor="@color/red"
+        android:textSize="15sp"
+        android:fontFamily="@font/arita_n" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_below="@id/error_tv"
+        android:layout_centerHorizontal="true"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginTop="50dp"
-        app:layout_constraintTop_toBottomOf="@+id/otp_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        android:layout_marginTop="10dp" >
 
         <TextView
             android:id="@+id/re_send_tv"
@@ -75,7 +81,7 @@
             android:layout_weight="1"
             android:layout_marginEnd="50dp"
             android:gravity="center"
-            android:text="재전송\n(2회 남음)"
+            android:text="재전송\n(3분 00초)"
             android:fontFamily="@font/arita_n"
             android:textColor="@color/light_gray"
             android:textSize="23sp"
@@ -95,4 +101,4 @@
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

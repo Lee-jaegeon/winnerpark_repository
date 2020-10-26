@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.now9e0n.winnerpark"
         minSdkVersion 23
-        targetSdkVersion 30
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -44,7 +44,6 @@ dependencies {
     implementation files('libs/additionnal.jar')
     implementation files('libs/activation.jar')
     implementation files('libs/mail.jar')
-    implementation files('libs/javaSDK-2.2.jar')
     implementation files('libs/json-simple-1.1.1.jar')
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

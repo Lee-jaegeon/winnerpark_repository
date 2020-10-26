@@ -23,7 +23,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LoadingDialogFragment extends DialogFragment {
-    public static final String TAG_LOADING_DIALOG = "loading_dialog";
 
     @BindView(R.id.loading_imv)
     ImageView loadingImv;

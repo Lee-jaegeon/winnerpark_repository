@@ -12,6 +12,7 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.Status;
 
 public class SMSReceiver extends BroadcastReceiver {
+
     private Consumer<String> codeConsumer;
 
     public SMSReceiver(Consumer<String> codeConsumer) {
@@ -25,13 +26,13 @@ public class SMSReceiver extends BroadcastReceiver {
             Status status = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
 
             switch(status.getStatusCode()) {
-                case CommonStatusCodes.SUCCESS:
+                case CommonStatusCodes.SUCCESS :
                     String message = (String) extras.get(SmsRetriever.EXTRA_SMS_MESSAGE);
                     String code = message.replaceAll("\\D", "").substring(0, 4);
                     codeConsumer.accept(code);
                     break;
 
-                case CommonStatusCodes.TIMEOUT:
+                case CommonStatusCodes.TIMEOUT :
                     break;
             }
         }

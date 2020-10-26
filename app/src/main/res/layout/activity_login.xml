@@ -29,7 +29,7 @@
         android:textColor="@color/dark_gray"
         android:fontFamily="@font/arita_n"
         android:textSize="15sp"
-        app:layout_constraintTop_toBottomOf="@+id/title_tv"
+        app:layout_constraintTop_toBottomOf="@id/title_tv"
         app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
@@ -42,37 +42,31 @@
         android:layout_marginEnd="32dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subtitle_tv">
+        app:layout_constraintTop_toBottomOf="@id/subtitle_tv">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="17.5dp">
+            android:orientation="horizontal">
 
-            <View
-                android:id="@+id/id_indicator"
+            <com.now9e0n.winnerpark.EditTextIndicator
                 android:layout_width="2dp"
                 android:layout_height="70dp"
                 android:layout_marginEnd="5dp"
-                android:background="@color/light_gray" />
+                app:edit_text="@id/id_et"/>
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                app:hintEnabled="false"
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
-                app:endIconMode="clear_text"
-                app:endIconTint="@android:color/black">
+                android:layout_marginStart="5dp">
 
                 <EditText
-                    style="@style/EditTextTheme"
+                    style="@style/EditTextStyle"
                     android:id="@+id/id_et"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    android:background="@null"
+                    android:background="@android:color/transparent"
                     android:inputType="textEmailAddress"
                     android:hint="SMS 또는 이메일" />
 
@@ -84,31 +78,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="17.5dp">
+            android:layout_marginTop="40dp">
 
-            <View
-                android:id="@+id/password_indicator"
+            <com.now9e0n.winnerpark.EditTextIndicator
                 android:layout_width="2dp"
                 android:layout_height="70dp"
                 android:layout_marginEnd="5dp"
-                android:background="@color/light_gray" />
+                app:edit_text="@id/password_et"/>
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                app:hintEnabled="false"
-                app:errorEnabled="true"
-                app:errorTextColor="@color/red"
-                app:endIconMode="none"
-                app:endIconTint="@android:color/black">
+                android:layout_marginStart="5dp">
 
                 <EditText
-                    style="@style/EditTextTheme"
+                    style="@style/EditTextStyle"
                     android:id="@+id/password_et"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    android:background="@null"
+                    android:background="@android:color/transparent"
                     android:inputType="textPassword"
                     android:hint="비밀번호" />
 
@@ -129,7 +118,7 @@
         app:tint="@color/light_gray"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_layout" />
+        app:layout_constraintTop_toBottomOf="@id/login_layout" />
 
     <View
         android:layout_width="0dp"
@@ -140,7 +129,7 @@
         app:layout_constraintTop_toBottomOf="@+id/login_imv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/annotation_tv"
-        app:layout_constraintBottom_toTopOf="@+id/sms_login_layout" />
+        app:layout_constraintBottom_toTopOf="@id/sms_login_layout" />
 
     <View
         android:layout_width="0dp"
@@ -148,10 +137,10 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:background="@color/light_gray"
-        app:layout_constraintTop_toBottomOf="@+id/login_imv"
-        app:layout_constraintStart_toEndOf="@+id/annotation_tv"
+        app:layout_constraintTop_toBottomOf="@id/login_imv"
+        app:layout_constraintStart_toEndOf="@id/annotation_tv"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/sms_login_layout" />
+        app:layout_constraintBottom_toTopOf="@id/sms_login_layout" />
 
     <TextView
         android:id="@+id/annotation_tv"
@@ -162,7 +151,7 @@
         android:textColor="@color/dark_gray"
         android:fontFamily="@font/arita_l"
         android:textSize="17sp"
-        app:layout_constraintTop_toBottomOf="@+id/login_imv"
+        app:layout_constraintTop_toBottomOf="@id/login_imv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -174,7 +163,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        app:layout_constraintTop_toBottomOf="@+id/annotation_tv"
+        app:layout_constraintTop_toBottomOf="@id/annotation_tv"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" >
 
@@ -193,7 +182,7 @@
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="10dp"
-            android:background="@drawable/btn_facebook" />
+            android:background="@drawable/btn_facebook"/>
 
     </LinearLayout>
 
@@ -202,7 +191,7 @@
         android:layout_height="0dp"
         android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/sms_login_layout"
+        app:layout_constraintTop_toBottomOf="@id/sms_login_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">

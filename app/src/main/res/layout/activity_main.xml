@@ -16,81 +16,28 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true">
 
-            <ImageView
-                android:id="@+id/logo_image_view"
-                android:layout_width="170dp"
-                android:layout_height="60dp"
-                android:src="@drawable/logo"
-                android:layout_gravity="center" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Winner Park"
+                android:fontFamily="@font/arita_b"
+                android:textSize="30sp"
+                android:textColor="@android:color/black" />
 
         </androidx.appcompat.widget.Toolbar>
-
-        <TabHost
-            android:id="@+id/tab_host"
+        
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar">
+            android:layout_height="match_parent">
 
-            <LinearLayout
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical" >
+                android:layout_height="match_parent" />
 
-                <FrameLayout
-                    android:id="@android:id/tabcontent"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" >
-
-                    <RelativeLayout
-                        android:id="@+id/home"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" >
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:scrollbars="none" />
-
-                    </RelativeLayout>
-
-                    <FrameLayout
-                        android:id="@+id/add"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" >
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text="2" />
-
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:id="@+id/profile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" >
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text="3" />
-
-                    </FrameLayout>
-
-                </FrameLayout>
-
-                <TabWidget
-                    android:id="@android:id/tabs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-
-        </TabHost>
+        </androidx.viewpager.widget.ViewPager>
 
     </RelativeLayout>
 
@@ -99,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/navigation_header"
+        app:headerLayout="@layout/header_navigation"
         app:menu="@menu/menu_navigation" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

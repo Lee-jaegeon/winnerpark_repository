@@ -44,11 +44,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MSGSignUpActivity" />
-        <activity android:name=".MainActivity">
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
-        </activity>
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>

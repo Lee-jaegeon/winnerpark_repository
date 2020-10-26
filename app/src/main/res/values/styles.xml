@@ -8,14 +8,22 @@
         <item name="otpViewStyle">@style/OtpWidget.OtpView</item>
     </style>
     
-    <style name="EditTextTheme">
+    <style name="EditTextStyle">
         <item name="fontFamily">@font/arita_n</item>
         <item name="android:textColor">@android:color/black</item>
         <item name="android:textSize">18sp</item>
-        <item name="singleLine">true</item>
         <item name="android:textColorHint">@color/dark_gray</item>
+        <item name="singleLine">true</item>
         <item name="android:textCursorDrawable">@drawable/cursor_et</item>
         <item name="android:textSelectHandle">@color/edit_text_select_handle</item>
         <item name="android:textColorHighlight">@color/edit_text_color_highlight</item>
+    </style>
+
+    <style name="TextInputLayoutStyle">
+        <item name="hintEnabled">false</item>
+        <item name="errorEnabled">true</item>
+        <item name="errorTextColor">@color/red</item>
+        <item name="endIconMode">clear_text</item>
+        <item name="endIconDrawable">@drawable/clear</item>
     </style>
 </resources>

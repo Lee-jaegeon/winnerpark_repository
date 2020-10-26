@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class UserModel implements Serializable {
+public class User implements Serializable {
     private String name;
     private String phoneNumber;
     private String email;
@@ -18,7 +18,7 @@ public class UserModel implements Serializable {
     private String createdDate;
     private String gameKind;
 
-    public static UserModel getUserBySnapshot(Map<String, String> map) {
+    public static User getUserBySnapshot(Map<String, String> map) {
         String name = map.get("name");
         String phoneNumber = map.get("phoneNumber");
         String email = map.get("email");
@@ -26,7 +26,7 @@ public class UserModel implements Serializable {
         String createdDate = map.get("createdDate");
         String gameKind = map.get("gameKind");
 
-        return UserModel.builder()
+        return User.builder()
                 .name(name)
                 .phoneNumber(phoneNumber)
                 .email(email)

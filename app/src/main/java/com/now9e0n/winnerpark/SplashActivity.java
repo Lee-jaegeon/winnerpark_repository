@@ -56,24 +56,27 @@ public class SplashActivity extends AppCompatActivity {
 
     private void startIntroActivity() {
         boolean isUserEmpty = ((AppManager) getApplication()).getUser() == null;
+        Intent intent;
 
         if (isUserEmpty) {
-            Intent intent = new Intent(getApplicationContext(), IntroActivity.class);
+            intent = new Intent(getApplicationContext(), IntroActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(intent);
-
-            finish();
         }
 
         else {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
 
-            finish();
         }
+
+        intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+        finish();
     }
 
     @Override
