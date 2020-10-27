@@ -8,7 +8,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -84,14 +83,13 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         ButterKnife.bind(this);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        app = (AppManager) getApplication();
-
         init();
         snsLoginInit();
     }
 
     private void init() {
+        app = (AppManager) getApplication();
+
         idLayout = (TextInputLayout) idEt.getParent().getParent();
         passwordLayout = (TextInputLayout) passwordEt.getParent().getParent();
 

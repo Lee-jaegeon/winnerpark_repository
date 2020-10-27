@@ -2,7 +2,6 @@ package com.now9e0n.winnerpark;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,8 +27,6 @@ public class IntroActivity extends AppCompatActivity {
         setContentView(R.layout.activity_intro);
 
         ButterKnife.bind(this);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-
         init();
     }
 
@@ -38,7 +35,7 @@ public class IntroActivity extends AppCompatActivity {
         for (int i = 1; i <= 5; i++)
             layoutList.add(getResources().getIdentifier("page_intro_" + i, "layout", getPackageName()));
 
-        viewPager.setAdapter(new MyPagerAdapter(getApplicationContext(), layoutList));
+        viewPager.setAdapter(new MyAdapter.MyPagerAdapter(getApplicationContext(), layoutList));
     }
 
     @OnClick(R.id.skip_tv)
