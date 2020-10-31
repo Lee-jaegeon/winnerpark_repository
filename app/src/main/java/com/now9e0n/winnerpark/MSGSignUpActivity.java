@@ -17,6 +17,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,7 +37,6 @@ import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.auth.api.credentials.HintRequest;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Date;
 import java.util.Timer;
@@ -45,8 +45,10 @@ import java.util.TimerTask;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import es.dmoral.toasty.Toasty;
 import lombok.Getter;
 
+import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
 import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
 import static com.now9e0n.winnerpark.AppManager.getReSizedDrawable;
 
@@ -78,6 +80,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
     private String emailCode;
 
     private AuthCodeFragment fragment;
+    private boolean isFragmentRemoving;
 
     private TimerTask task;
     @Getter private long deltaTime;
@@ -86,6 +89,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_msg_sign_up);
+        activityWindowSet(this);
 
         ButterKnife.bind(this);
         init();
@@ -96,7 +100,6 @@ public class MSGSignUpActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
-
         actionBar.setHomeAsUpIndicator(getReSizedDrawable(R.drawable.arrow_left, 20, 20));
 
         apiClient = new GoogleApiClient.Builder(getApplicationContext())
@@ -145,19 +148,45 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment;
+        if (!isFragmentRemoving) {
+            isFragmentRemoving = true;
 
-        if ((fragment = fm.findFragmentByTag("create_password")) != null) {
-            fm.beginTransaction().remove(fragment).commit();
-            fragment = fm.findFragmentByTag("auth_code");
-            fm.beginTransaction().remove(fragment).commit();
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment fragment;
+
+            if ((fragment = fm.findFragmentByTag("create_password")) != null)
+                removeFragmentAnimation(fm, fragment, this.fragment);
+
+            else if (fm.findFragmentByTag("auth_code") != null)
+                removeFragmentAnimation(fm, this.fragment);
+
+            else finish();
         }
+    }
 
-        else if ((fragment = fm.findFragmentByTag("auth_code")) != null)
-            fm.beginTransaction().remove(fragment).commit();
+    private void removeFragmentAnimation(FragmentManager fm, Fragment... fragments) {
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pop_exit);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
 
-        else finish();
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                for (Fragment fragment : fragments) fm.beginTransaction().remove(fragment);
+                fm.beginTransaction().commit();
+
+                isFragmentRemoving = false;
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        fragments[0].getView().startAnimation(animation);
     }
 
     private TextWatcher getTextWatcher(String name) {
@@ -228,8 +257,8 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
         if (sendCodeBtn.getTag().equals("prepared")) {
             if (deltaTime == 0) sendCode();
-            else Toast.makeText(getApplicationContext(),
-                    "인증코드 재전송 : " + fragment.getTimer() + " 남음", Toast.LENGTH_SHORT).show();
+            else Toasty.info(getApplicationContext(),
+                    "인증코드 재전송 : " + fragment.getTimer() + " 남음", Toast.LENGTH_SHORT, true).show();
         }
     }
 
@@ -282,7 +311,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
                 startAuthCodeFragment();
                 fragment.startSMSReceiver();
-                Snackbar.make(getWindow().getDecorView(), "휴대폰 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+                Toasty.success(getApplicationContext(), "휴대폰 인증 코드를 전송하였습니다.", Toast.LENGTH_SHORT).show();
             });
         }
 
@@ -300,11 +329,11 @@ public class MSGSignUpActivity extends AppCompatActivity {
                     emailCode = gMailSender.getEmailCode();
 
                     startAuthCodeFragment();
-                    Snackbar.make(getWindow().getDecorView(), "이메일 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+                    Toasty.success(getApplicationContext(), "이메일 인증 코드를 전송하였습니다.", Toast.LENGTH_SHORT).show();
                 });
             }
 
-            else Toast.makeText(getApplicationContext(), "이메일 주소가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+            else Toasty.error(getApplicationContext(), "이메일 주소가 존재하지 않습니다.", Toast.LENGTH_SHORT, true).show();
         }
     }
 
@@ -351,7 +380,7 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
     public void addFragment(Fragment fragment, String tag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.anim.enter_from_right, 0, 0, R.anim.exit_to_right);
+        transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         transaction.add(R.id.fragment_layout, fragment, tag).commit();
     }
 }

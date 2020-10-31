@@ -1,5 +1,7 @@
 package com.now9e0n.winnerpark;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -107,7 +109,7 @@ public class GMailSender extends javax.mail.Authenticator {
                 Transport.send(message);
 
                 date = getCurrentDate(Date.class);
-                runnable.run();
+                new Handler(Looper.getMainLooper()).post(runnable);
             }
         }.start();
     }

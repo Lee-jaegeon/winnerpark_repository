@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,16 +46,19 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import es.dmoral.toasty.Toasty;
 
+import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
 import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
 import static com.now9e0n.winnerpark.AppManager.getMyColor;
 import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
-import static com.now9e0n.winnerpark.User.getUserBySnapshot;
+import static com.now9e0n.winnerpark.AppManager.isTextEqual;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -72,6 +76,8 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.login_imv)
     ImageView loginImv;
 
+    private DatabaseReference reference;
+
     private GoogleSignInClient googleSignInClient;
 
     private CallbackManager callbackManager;
@@ -81,10 +87,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        activityWindowSet(this);
 
         ButterKnife.bind(this);
         init();
-        snsLoginInit();
+        signInInit();
     }
 
     private void init() {
@@ -134,7 +141,9 @@ public class LoginActivity extends AppCompatActivity {
         passwordEt.addTextChangedListener(textWatcher);
     }
 
-    private void snsLoginInit() {
+    private void signInInit() {
+        reference = FirebaseDatabase.getInstance().getReference("user_list");
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .build();
@@ -169,7 +178,32 @@ public class LoginActivity extends AppCompatActivity {
             passwordLayout.setError("입력란을 채워주세요 :)");
 
         if (loginImv.getTag().equals("prepared")) {
+            LoadingDialogFragment loadingFragment = new LoadingDialogFragment();
+            loadingFragment.show(getSupportFragmentManager(), null);
 
+            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    List<User> userList = User.getUserBySnapshot(snapshot);
+                    for (User user : userList) {
+                        if (isTextEqual(idEt, user.getPhoneNumber(), user.getEmail()) && isTextEqual(passwordEt, user.getPassword())) {
+                            loadingFragment.dismiss();
+                            app.setUser(user);
+                            startMainActivity();
+                            Toasty.success(getApplicationContext(), "로그인에 성공하였습니다.", Toast.LENGTH_SHORT, true).show();
+                            return;
+                        }
+                    }
+
+                    loadingFragment.dismiss();
+                    Toasty.error(getApplicationContext(), "일치하는 계정의 정보가 없습니다.", Toast.LENGTH_SHORT, true).show();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.w("Firebase", "Value Event Listen Cancelled", error.toException());
+                }
+            });
         }
     }
 
@@ -221,7 +255,6 @@ public class LoginActivity extends AppCompatActivity {
                 auth.signInWithCredential(credential).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = auth.getCurrentUser();
-                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("user_list");
                         reference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -239,7 +272,8 @@ public class LoginActivity extends AppCompatActivity {
                                     writeStorage(firebaseUser);
                                 }
 
-                                app.setUser(getUserBySnapshot((Map<String, String>) snapshot));
+                                User user = User.getUserByUserData((Map<String, Object>) snapshot.child(firebaseUser.getUid()));
+                                app.setUser(user);
                             }
 
                             @Override

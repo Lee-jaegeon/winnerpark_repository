@@ -11,6 +11,8 @@ import com.airbnb.lottie.LottieAnimationView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
+
 public class SplashActivity extends AppCompatActivity {
 
     @BindView(R.id.animation_view)
@@ -20,6 +22,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        activityWindowSet(this);
 
         ButterKnife.bind(this);
         init();
@@ -68,10 +71,6 @@ public class SplashActivity extends AppCompatActivity {
 
         }
 
-        intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
     }

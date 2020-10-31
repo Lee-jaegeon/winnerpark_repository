@@ -11,11 +11,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -26,6 +26,7 @@ import java.util.TimerTask;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import es.dmoral.toasty.Toasty;
 
 import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
 import static com.now9e0n.winnerpark.AppManager.isTextEqual;
@@ -160,7 +161,7 @@ public class CreatePasswordFragment extends Fragment {
                     ((AppManager) getContext()).setUser(user);
                     reference.push().setValue(user);
 
-                    Snackbar.make(getView(), "계정 생성이 완료되었습니다.", Snackbar.LENGTH_LONG).show();
+                    Toasty.success(getContext(), "계정생성에 성공하였습니다.", Toast.LENGTH_SHORT).show();
                     animationView.setVisibility(View.VISIBLE);
                     animationView.addAnimatorListener(animatorListener);
                     animationView.playAnimation();

@@ -1,24 +1,28 @@
 package com.now9e0n.winnerpark;
 
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import com.now9e0n.winnerpark.MyAdapter.HomeRecyclerAdapter;
+import com.now9e0n.winnerpark.MyAdapter.HomeRecyclerAdapter.ViewHolder;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
+import static com.now9e0n.winnerpark.AppManager.getReSizedDrawable;
 
 public class HomeFragment extends Fragment {
 
@@ -32,7 +36,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
 
-        //init();
+        init();
 
         return view;
     }
@@ -40,38 +44,64 @@ public class HomeFragment extends Fragment {
     private void init() {
         app = (AppManager) getActivity().getApplication();
 
-        String[] gameKindArray = app.getUser().getGameKind().split(" ");
-        ArrayList<Drawable> drawableList = new ArrayList<>();
+        Consumer<Integer> itemClickConsumer = position -> {
+            HomeRecyclerAdapter adapter = (HomeRecyclerAdapter) recyclerView.getAdapter();
 
-        for (String gameKind : gameKindArray) {
-            int drawable = getResources().getIdentifier("icon_" + gameKind, "drawable", getContext().getPackageName());
-            drawableList.add(getMyDrawable(drawable));
+            if (position == 0) {
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+                transaction.add(new GameSelectionFragment(), "game_selection").commit();
+            }
+
+            else if (position != adapter.getCurrentItem()) {
+                ViewHolder viewHolder = (ViewHolder) recyclerView.findViewHolderForAdapterPosition(adapter.getCurrentItem());
+                viewHolder.getFocusImv().setVisibility(View.GONE);
+
+                viewHolder = (ViewHolder) recyclerView.findViewHolderForAdapterPosition(position);
+                viewHolder.getFocusImv().setVisibility(View.VISIBLE);
+                adapter.setCurrentItem(position);
+            }
+        };
+
+        HomeRecyclerAdapter adapter = new HomeRecyclerAdapter(app, itemClickConsumer);
+        adapter.addDrawable(getReSizedDrawable(R.drawable.icon_add, 60, 60));
+
+        if (app.getUser().getGameKindList() != null) {
+            List<String> gameKindArray = app.getUser().getGameKindList();
+
+            for (String gameKind : gameKindArray) {
+                gameKind = gameKind.toLowerCase().replaceAll("[^a-z ]", "").replace(" ", "_");
+                int drawable = getResources().getIdentifier("icon_" + gameKind, "drawable", getContext().getPackageName());
+                adapter.addDrawable(getReSizedDrawable(drawable, 60, 60));
+            }
         }
 
-        recyclerView.setAdapter(new MyAdapter.HomeRecyclerAdapter(drawableList));
+        recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setItemViewCacheSize(adapter.getListSize());
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-                if (parent.getItemDecorationCount() - parent.getChildAdapterPosition(view) > 1)
-                    outRect.right = (int) (30 * AppManager.getDensityRatio());
+                super.getItemOffsets(outRect, view, parent, state);
+
+                int pos = parent.getChildAdapterPosition(view);
+                int count = parent.getAdapter().getItemCount();
+                int size = (int) (10 * AppManager.getDensityRatio());
+
+                if (pos == 0) outRect.left = size;
+                if (count - pos == 1) outRect.right = size;
+                if (count - pos > 1) outRect.right = size;
             }
         });
-        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                return false;
-            }
 
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent motionEvent) {
-                View child = rv.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-                int position = rv.getChildAdapterPosition(child);
-            }
+            public void onGlobalLayout() {
+                adapter.setCurrentItem(1);
+                recyclerView.getLayoutManager().findViewByPosition(1).performClick();
 
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
+                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
     }

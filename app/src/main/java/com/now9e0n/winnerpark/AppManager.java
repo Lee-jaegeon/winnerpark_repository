@@ -1,5 +1,6 @@
 package com.now9e0n.winnerpark;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -7,6 +8,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 
@@ -76,8 +79,33 @@ public class AppManager extends Application {
         }
     }
 
+    public static void activityWindowSet(Activity activity) {
+        Window window = activity.getWindow();
+        WindowManager.LayoutParams winParams = window.getAttributes();
+        winParams.flags &= ~WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        window.setAttributes(winParams);
+        window.getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+    }
+
     public static boolean isTextEqual(EditText editText1, EditText editText2) {
         return editText1.getEditableText().toString().equals(editText2.getEditableText().toString());
+    }
+
+    public static boolean isTextEqual(EditText target, String... texts) {
+        for (String text : texts)
+            if (target.getEditableText().toString().equals(text)) return true;
+
+        return false;
+    }
+
+    public static boolean isTextEqual(String target, String... texts) {
+        for (String text : texts)
+            if (target.equals(text)) return true;
+
+        return false;
     }
 
     public static <T> T getCurrentDate(Class<T> type) {
@@ -102,8 +130,8 @@ public class AppManager extends Application {
     public static Drawable getReSizedDrawable(int drawableId, int width, int height) {
         Drawable drawable = getMyDrawable(drawableId);
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-        width = (int) (width * AppManager.getDensityRatio());
-        height = (int) (height * AppManager.getDensityRatio());
+        width = (int) (width * densityRatio);
+        height = (int) (height * densityRatio);
         return new BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, width, height, true));
     }
 

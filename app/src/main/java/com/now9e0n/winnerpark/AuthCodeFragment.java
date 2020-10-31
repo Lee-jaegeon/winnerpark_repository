@@ -1,6 +1,5 @@
 package com.now9e0n.winnerpark;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -17,14 +16,15 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.emredavarci.noty.Noty;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,14 +34,17 @@ import com.mukesh.OtpView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import es.dmoral.toasty.Toasty;
 import lombok.Getter;
 import lombok.SneakyThrows;
+
+import static com.now9e0n.winnerpark.AppManager.isTextEqual;
 
 public class AuthCodeFragment extends Fragment {
 
@@ -66,7 +69,10 @@ public class AuthCodeFragment extends Fragment {
     @Getter private String timer;
 
     private DatabaseReference reference;
-    private AlertDialog alertDialog;
+
+    @BindView(R.id.root_layout)
+    RelativeLayout layout;
+    private Noty dialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -100,20 +106,30 @@ public class AuthCodeFragment extends Fragment {
         spanString();
 
         reference = FirebaseDatabase.getInstance().getReference("user_list");
-        alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle("회원가입")
-                .setMessage("이미 계정이 존재합니다.")
-                .setCancelable(false)
-                .setPositiveButton("확인", (dialog, id) -> {
-                    dialog.dismiss();
-                    Snackbar.make(getView(), "로그인 화면으로 이동합니다 :)", Snackbar.LENGTH_LONG).show();
+
+        String message = "이미 계정이 존재합니다.\n\n현재 가입되어 있는 핸드폰 번호나\n이메일을 사용하여 로그인해주세요 :)";
+        dialog = Noty.init(getContext(), message, layout, Noty.WarningStyle.ACTION)
+                .hasShadow(true)
+                .setActionText("확인")
+                .setActionTextColor("#FFFFFF")
+                .setActionFont("arita_b.otf")
+                .setActionTextSizeSp(20)
+                .setWarningTextFont("arita_n.otf")
+                .setWarningTextSizeSp(17)
+                .setWarningBoxBgColor("#9147FF")
+                .setWarningBoxRadius(10,10,10,10)
+                .setWarningBoxPosition(Noty.WarningPos.CENTER)
+                .setWarningBoxMargins(40,10,40,10)
+                .setHeight(new RelativeLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT))
+                .setAnimation(Noty.RevealAnim.FADE_IN, Noty.DismissAnim.FADE_OUT, 500,500)
+                .setTapListener(warning -> {
+                    Toasty.normal(getContext(), "로그인 화면으로 이동합니다", Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(getContext(), LoginActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
-                })
-                .create();
+                });
     }
 
     public void startSMSReceiver() {
@@ -143,7 +159,7 @@ public class AuthCodeFragment extends Fragment {
             if (smsReceiver != null) SmsRetriever.getClient(getContext()).startSmsRetriever();
         }
 
-        else Toast.makeText(getContext(), "인증코드 재전송 : " + timer + " 남음", Toast.LENGTH_SHORT).show();
+        else Toasty.info(getContext(), "인증코드 재전송 : " + timer + " 남음", Toast.LENGTH_SHORT, true).show();
     }
 
     private void sendCode() {
@@ -152,7 +168,7 @@ public class AuthCodeFragment extends Fragment {
             client.sendSMS(address, () -> {
                 sentCode = client.getCode();
 
-                Snackbar.make(getView(), "휴대폰 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+                Toasty.success(getContext(), "휴대폰 인증 코드를 전송하였습니다.", Toast.LENGTH_SHORT).show();
             });
         }
 
@@ -161,7 +177,7 @@ public class AuthCodeFragment extends Fragment {
             gMailSender.sendMail(address, () -> {
                 sentCode = gMailSender.getEmailCode();
 
-                Snackbar.make(getView(), "이메일 인증 코드를 전송하였습니다.", Snackbar.LENGTH_LONG).show();
+                Toasty.success(getContext(), "이메일 인증 코드를 전송하였습니다.", Toast.LENGTH_SHORT).show();
             });
         }
     }
@@ -176,18 +192,17 @@ public class AuthCodeFragment extends Fragment {
                 @SneakyThrows
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Map<String, Map<String, String>> userList = (Map<String, Map<String, String>>) snapshot.getValue();
-                    for (Map<String, String> userData : userList.values()) {
-                        User user = User.getUserBySnapshot(userData);
-                        if (user.getPhoneNumber().equals(address) || user.getEmail().equals(address)) {
+                    List<User> userList = User.getUserBySnapshot(snapshot);
+                    for (User user : userList) {
+                        if (isTextEqual(address, user.getPhoneNumber(), user.getEmail())) {
                             loadingFragment.dismiss();
-                            alertDialog.show();
+                            dialog.show();
                             return;
                         }
                     }
 
                     loadingFragment.dismiss();
-                    Snackbar.make(getView(), "인증에 성공하였습니다.", Snackbar.LENGTH_LONG).show();
+                    Toasty.success(getContext(), "인증에 성공하였습니다.", Toast.LENGTH_SHORT).show();
                     startCreatePasswordFragment();
                 }
 

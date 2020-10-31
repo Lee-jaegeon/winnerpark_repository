@@ -13,6 +13,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
+
 public class IntroActivity extends AppCompatActivity {
 
     @BindView(R.id.view_pager)
@@ -25,6 +27,7 @@ public class IntroActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
+        activityWindowSet(this);
 
         ButterKnife.bind(this);
         init();

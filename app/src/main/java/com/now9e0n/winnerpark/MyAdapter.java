@@ -1,6 +1,7 @@
 package com.now9e0n.winnerpark;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -19,8 +21,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lombok.Getter;
+import lombok.Setter;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static com.now9e0n.winnerpark.AppManager.getMyColor;
 
 public abstract class MyAdapter {
 
@@ -59,17 +64,16 @@ public abstract class MyAdapter {
         }
     }
 
-    public static class MainPagerAdapter extends FragmentPagerAdapter {
+    public static class MainFragmentPagerAdapter extends FragmentPagerAdapter {
 
-        private final List<Fragment> fragmentList;
+        private final List<Fragment> fragmentList = new ArrayList<>();
 
-        public MainPagerAdapter(@NonNull FragmentManager fm, int behavior) {
+        public MainFragmentPagerAdapter(@NonNull FragmentManager fm, int behavior) {
             super(fm, behavior);
+        }
 
-            fragmentList = new ArrayList<>();
-            fragmentList.add(new HomeFragment());
-            fragmentList.add(new AddFragment());
-            fragmentList.add(new ProfileFragment());
+        public void addFragment(Fragment fragment) {
+            fragmentList.add(fragment);
         }
 
         @Override
@@ -86,34 +90,90 @@ public abstract class MyAdapter {
 
     public static class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
 
-        private final List<Drawable> drawableList;
+        private static final int ITEM_ADD = 1;
+        private static final int ITEM_NORMAL = 2;
 
-        public HomeRecyclerAdapter(ArrayList<Drawable> drawableList) {
-            this.drawableList = drawableList;
+        private final AppManager app;
+
+        private final List<Drawable> drawableList = new ArrayList<>();
+        private final Consumer<Integer> itemClickConsumer;
+        @Getter @Setter private int currentItem;
+
+        public HomeRecyclerAdapter(AppManager app, Consumer<Integer> itemClickConsumer) {
+            this.app = app;
+            this.itemClickConsumer = itemClickConsumer;
         }
 
-        public static class ViewHolder extends RecyclerView.ViewHolder {
+        public void addDrawable(Drawable drawable) {
+            drawableList.add(drawable);
+        }
+
+        public int getListSize() {
+            return drawableList.size();
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
             @BindView(R.id.item_imv)
-            ImageView imageView;
+            ImageView itemImv;
+            private ImageView removeImv;
+            @Getter private ImageView focusImv;
 
-            public ViewHolder(View itemView) {
+            public ViewHolder(View itemView, int type) {
                 super(itemView);
-
                 ButterKnife.bind(this, itemView);
+
+                itemView.setOnClickListener((view) -> itemClickConsumer.accept(getAdapterPosition()));
+
+                if (type == ITEM_NORMAL) {
+                    removeImv = itemView.findViewById(R.id.remove_imv);
+                    focusImv = itemView.findViewById(R.id.focus_imv);
+
+                    itemView.setOnLongClickListener(view -> {
+                        if (removeImv.getVisibility() == View.GONE) {
+                            itemImv.setColorFilter(getMyColor(R.color.dark_gray), PorterDuff.Mode.MULTIPLY);
+                            removeImv.setVisibility(View.VISIBLE);
+                        }
+
+                        else if (removeImv.getVisibility() == View.VISIBLE) {
+                            itemImv.setColorFilter(null);
+                            removeImv.setVisibility(View.GONE);
+                        }
+
+                        return false;
+                    });
+
+                    removeImv.setOnClickListener(view -> {
+                        int pos = getAdapterPosition();
+
+                        app.getUser().getGameKindList().remove(pos);
+                        drawableList.remove(pos);
+                        notifyItemRemoved(pos);
+                    });
+                }
             }
         }
 
         @Override
         @NonNull
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recycler_main, parent, false);
+            int layout = 0;
+            if (viewType == ITEM_ADD) layout = R.layout.item_icon_home_add;
+            if (viewType == ITEM_NORMAL) layout = R.layout.item_icon_home_normal;
 
-            return new ViewHolder(view);
+            View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+
+            return new ViewHolder(view, viewType);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.imageView.setImageDrawable(drawableList.get(position));
+            holder.itemImv.setImageDrawable(drawableList.get(position));
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position == 0) return ITEM_ADD;
+            else return ITEM_NORMAL;
         }
 
         @Override

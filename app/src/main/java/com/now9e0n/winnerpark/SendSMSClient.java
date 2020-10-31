@@ -1,11 +1,12 @@
 package com.now9e0n.winnerpark;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
@@ -52,7 +53,7 @@ public class SendSMSClient {
             @SneakyThrows
             @Override
             public void run() {
-                if (sentSMS()) runnable.run();
+                if (sentSMS()) new Handler(Looper.getMainLooper()).post(runnable);
             }
         };
 
@@ -77,7 +78,7 @@ public class SendSMSClient {
         return newCode.toString();
     }
 
-    private boolean sentSMS() throws ParseException {
+    private boolean sentSMS() {
         if ((Boolean) result.get("status")) {
             String groupId = (String) result.get("group_id");
             HashMap<String, String> params = new HashMap<>();

@@ -7,6 +7,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -15,6 +16,7 @@ import com.google.android.material.tabs.TabLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
 import static com.now9e0n.winnerpark.AppManager.getReSizedDrawable;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        activityWindowSet(this);
 
         ButterKnife.bind(this);
         init();
@@ -51,17 +54,23 @@ public class MainActivity extends AppCompatActivity {
 
         drawerLayout.addDrawerListener(new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer));
 
-        MyAdapter.MainPagerAdapter adapter = new MyAdapter.MainPagerAdapter
+        MyAdapter.MainFragmentPagerAdapter adapter = new MyAdapter.MainFragmentPagerAdapter
                 (getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+
+        adapter.addFragment(new HomeFragment());
+        adapter.addFragment(new AddFragment());
+        adapter.addFragment(new ProfileFragment());
         viewPager.setAdapter(adapter);
 
         tabLayout.setupWithViewPager(viewPager);
 
-        tabLayout.getTabAt(0).setIcon(getReSizedDrawable(R.drawable.home, 25, 25));
-        tabLayout.getTabAt(1).setIcon(getReSizedDrawable(R.drawable.add, 25, 25));
-        tabLayout.getTabAt(2).setIcon(getReSizedDrawable(R.drawable.profile, 25, 25));
+        tabLayout.getTabAt(0).setIcon(getReSizedDrawable(R.drawable.tab_home, 25, 25));
+        tabLayout.getTabAt(1).setIcon(getReSizedDrawable(R.drawable.tab_add, 25, 25));
+        tabLayout.getTabAt(2).setIcon(getReSizedDrawable(R.drawable.tab_profile, 25, 25));
+    }
 
-        tabLayout.setSelectedTabIndicatorColor(getColor(android.R.color.black));
+    public void addFragment(Fragment fragment) {
+
     }
 
     @Override
