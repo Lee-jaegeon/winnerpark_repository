@@ -28,7 +28,7 @@ public class User implements Serializable {
         String email = (String) map.get("email");
         String password = (String) map.get("password");
         String createdDate = (String) map.get("createdDate");
-        List<String> gameKindList = (List<String>) map.get("gameKindArray");
+        List<String> gameKindList = (List<String>) map.get("gameKindList");
 
         return User.builder()
                 .name(name)

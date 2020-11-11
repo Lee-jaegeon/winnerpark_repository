@@ -2,6 +2,7 @@ package com.now9e0n.winnerpark;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.widget.EditText;
 
 import androidx.core.content.res.ResourcesCompat;
@@ -37,6 +39,8 @@ public class AppManager extends Application {
 
     private static Resources resources;
     private static Resources.Theme theme;
+    private static Context context;
+
     @Getter static float densityRatio;
 
     @Override
@@ -48,18 +52,18 @@ public class AppManager extends Application {
 
         resources = getResources();
         theme = getTheme();
+        context = getApplicationContext();
 
         DisplayMetrics metrics = new DisplayMetrics();
-        ((WindowManager) getApplicationContext().getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
+        ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
         densityRatio = (float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
     }
 
     private void readUser() {
-        ObjectInputStream inputStream;
         try {
             File file = new File(userFilePath);
             if (file.exists()) {
-                inputStream = new ObjectInputStream(new FileInputStream(file));
+                ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
                 user = (User) inputStream.readObject();
                 inputStream.close();
             }
@@ -69,9 +73,8 @@ public class AppManager extends Application {
     }
 
     public void saveUser() {
-        ObjectOutputStream outStream;
         try {
-            outStream = new ObjectOutputStream(new FileOutputStream(userFilePath));
+            ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream(userFilePath));
             outStream.writeObject(user);
             outStream.close();
         } catch (IOException e) {
@@ -88,6 +91,10 @@ public class AppManager extends Application {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+    }
+
+    public static int getHashCode(String text) {
+        return Math.abs(text.hashCode());
     }
 
     public static boolean isTextEqual(EditText editText1, EditText editText2) {
@@ -137,5 +144,28 @@ public class AppManager extends Application {
 
     public static int getMyColor(int color) {
         return ResourcesCompat.getColor(resources, color, theme);
+    }
+
+    public static int getIdentifier(String name, String type) {
+        return resources.getIdentifier(name, type, context.getPackageName());
+    }
+
+    public static Animation.AnimationListener animEndListener(Runnable runnable) {
+        return new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                runnable.run();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        };
     }
 }

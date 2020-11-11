@@ -49,13 +49,15 @@ import es.dmoral.toasty.Toasty;
 import lombok.Getter;
 
 import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
+import static com.now9e0n.winnerpark.AppManager.animEndListener;
 import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
+import static com.now9e0n.winnerpark.AppManager.getHashCode;
 import static com.now9e0n.winnerpark.AppManager.getReSizedDrawable;
 
 public class MSGSignUpActivity extends AppCompatActivity {
 
-    private static final int RC_PHONE_HINT = 101;
-    private static final int RC_EMAIL_CHOOSE = 102;
+    private static final int RC_PHONE_HINT = getHashCode("RC_PHONE_HINT");
+    private static final int RC_EMAIL_CHOOSE = getHashCode("RC_EMAIL_CHOOSE");
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -166,25 +168,12 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
     private void removeFragmentAnimation(FragmentManager fm, Fragment... fragments) {
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.pop_exit);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
+        animation.setAnimationListener(animEndListener(() -> {
+            for (Fragment fragment : fragments) fm.beginTransaction().remove(fragment);
+            fm.beginTransaction().commit();
 
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                for (Fragment fragment : fragments) fm.beginTransaction().remove(fragment);
-                fm.beginTransaction().commit();
-
-                isFragmentRemoving = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+            isFragmentRemoving = false;
+        }));
 
         fragments[0].getView().startAnimation(animation);
     }
@@ -270,29 +259,14 @@ public class MSGSignUpActivity extends AppCompatActivity {
 
         Animation fadeOut = new AlphaAnimation(1, 0);
         fadeOut.setInterpolator(new AccelerateInterpolator());
-        fadeOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
+        fadeOut.setAnimationListener(animEndListener(() -> errorTv.setVisibility(View.INVISIBLE)));
 
-            }
+        AnimationSet set = new AnimationSet(false);
+        set.setDuration(1000);
+        set.addAnimation(fadeIn);
+        set.addAnimation(fadeOut);
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                errorTv.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        AnimationSet animation = new AnimationSet(false);
-        animation.setDuration(1000);
-        animation.addAnimation(fadeIn);
-        animation.addAnimation(fadeOut);
-
-        errorTv.setAnimation(animation);
+        errorTv.startAnimation(set);
     }
 
     private void sendCode() {

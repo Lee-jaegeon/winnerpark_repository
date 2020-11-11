@@ -38,7 +38,7 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                startIntroActivity();
+                startNextActivity();
             }
 
             @Override
@@ -54,7 +54,7 @@ public class SplashActivity extends AppCompatActivity {
         animationView.playAnimation();
     }
 
-    private void startIntroActivity() {
+    private void startNextActivity() {
         boolean isUserEmpty = ((AppManager) getApplication()).getUser() == null;
         Intent intent;
 
@@ -68,7 +68,6 @@ public class SplashActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-
         }
 
         startActivity(intent);

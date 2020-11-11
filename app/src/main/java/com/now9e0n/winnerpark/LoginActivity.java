@@ -1,5 +1,6 @@
 package com.now9e0n.winnerpark;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -54,15 +55,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import es.dmoral.toasty.Toasty;
 
-import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
 import static com.now9e0n.winnerpark.AppManager.getCurrentDate;
-import static com.now9e0n.winnerpark.AppManager.getMyColor;
+import static com.now9e0n.winnerpark.AppManager.getHashCode;
 import static com.now9e0n.winnerpark.AppManager.getMyDrawable;
 import static com.now9e0n.winnerpark.AppManager.isTextEqual;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final int RC_GOOGLE_SIGN_IN = 100;
+    private static final int RC_GOOGLE_SIGN_IN = getHashCode("RC_GOOGLE_SIGN_IN");
 
     private AppManager app;
 
@@ -92,6 +92,9 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         init();
         signInInit();
+    }
+
+    private void activityWindowSet(LoginActivity loginActivity) {
     }
 
     private void init() {
@@ -125,12 +128,12 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (!TextUtils.isEmpty(idEt.getEditableText()) && !TextUtils.isEmpty(passwordEt.getEditableText())) {
                     loginImv.setTag("prepared");
-                    drawable.setTint(getMyColor(android.R.color.white));
+                    drawable.setTint(getColor(android.R.color.white));
                     loginImv.setImageDrawable(drawable);
                     loginImv.setBackground(getMyDrawable(R.drawable.bg_login_activated));
                 } else {
                     loginImv.setTag("");
-                    drawable.setTint(getMyColor(R.color.light_gray));
+                    drawable.setTint(getColor(R.color.light_gray));
                     loginImv.setImageDrawable(drawable);
                     loginImv.setBackground(getMyDrawable(R.drawable.bg_login_normal));
                 }
@@ -228,7 +231,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_GOOGLE_SIGN_IN) {
+        if (requestCode == RC_GOOGLE_SIGN_IN && resultCode == Activity.RESULT_OK) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);

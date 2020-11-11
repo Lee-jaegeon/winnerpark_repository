@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/winner park.winner_park.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/winner park.winner_park.app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/winner_park.iml" filepath="$PROJECT_DIR$/.idea/modules/winner_park.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/winner_park.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/winner_park.app.iml" />
     </modules>
   </component>
 </project>

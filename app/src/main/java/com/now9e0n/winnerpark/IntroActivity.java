@@ -14,6 +14,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static com.now9e0n.winnerpark.AppManager.activityWindowSet;
+import static com.now9e0n.winnerpark.AppManager.getIdentifier;
 
 public class IntroActivity extends AppCompatActivity {
 
@@ -35,9 +36,7 @@ public class IntroActivity extends AppCompatActivity {
 
     private void init() {
         ArrayList<Integer> layoutList = new ArrayList<>();
-        for (int i = 1; i <= 5; i++)
-            layoutList.add(getResources().getIdentifier("page_intro_" + i, "layout", getPackageName()));
-
+        for (int i = 1; i <= 5; i++) layoutList.add(getIdentifier("page_intro_" + i, "layout"));
         viewPager.setAdapter(new MyAdapter.MyPagerAdapter(getApplicationContext(), layoutList));
     }
 
